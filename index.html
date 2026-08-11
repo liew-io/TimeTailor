@@ -45,7 +45,7 @@
   <!-- Main Work Area -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
 
-    <!-- 1. AUTH SECTION (Shown when logged out) -->
+    <!-- 1. AUTH SECTION -->
     <section id="auth-section" class="max-w-md mx-auto bg-slate-800/90 backdrop-blur-xl p-8 rounded-2xl border border-slate-700/80 shadow-2xl space-y-6">
       <div class="text-center">
         <h2 class="text-xl font-bold text-white">Welcome to TimeTailor</h2>
@@ -69,10 +69,10 @@
       </form>
     </section>
 
-    <!-- 2. MAIN DASHBOARD SECTION (Shown when logged in) -->
+    <!-- 2. MAIN DASHBOARD SECTION -->
     <div id="app-section" class="hidden space-y-8">
 
-      <!-- ADMIN DASHBOARD: 只有 role === 'admin' 才会显示这个区块 -->
+      <!-- ADMIN DASHBOARD -->
       <section id="admin-panel" class="hidden bg-indigo-950/40 border border-indigo-500/30 p-6 rounded-2xl shadow-xl backdrop-blur-md">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -101,10 +101,10 @@
         </div>
       </section>
 
-      <!-- ORIGINAL TIMETAILOR SYSTEM (Full Feature Set) -->
+      <!-- SYSTEM BODY -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- LEFT COLUMN: Task Input & Presets -->
+        <!-- LEFT COLUMN: Task Input & Queue -->
         <section class="lg:col-span-5 space-y-6">
           
           <div class="bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700/80 shadow-xl shadow-black/20">
@@ -194,7 +194,7 @@
 
         </section>
 
-        <!-- RIGHT COLUMN: Spatial-Temporal Time-Blocking Engine -->
+        <!-- RIGHT COLUMN: Timeline Pack Engine -->
         <section class="lg:col-span-7 space-y-6">
           <div class="bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700/80 shadow-xl shadow-black/20">
             
@@ -204,9 +204,17 @@
                 <p class="text-xs text-slate-400 mt-0.5">Packs Cloud Tasks with Map & Waze Navigation Links</p>
               </div>
               
-              <button onclick="window.runAutoPackEngine()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 active:scale-95">
-                <i data-lucide="play" class="w-4 h-4"></i> Run Auto-Pack
-              </button>
+              <!-- 日期选择器 + 运行按钮 -->
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5 bg-slate-900/80 border border-slate-700 px-3 py-1.5 rounded-xl">
+                  <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i>
+                  <input type="date" id="schedule-date" class="bg-transparent text-xs text-indigo-200 outline-none cursor-pointer font-medium">
+                </div>
+
+                <button onclick="window.runAutoPackEngine()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 active:scale-95">
+                  <i data-lucide="play" class="w-4 h-4"></i> Run Auto-Pack
+                </button>
+              </div>
             </div>
 
             <!-- Timeline Output View -->
@@ -214,7 +222,7 @@
               <div id="timeline-container" class="space-y-4 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-slate-700/80">
                 <div class="pl-8 py-16 text-center text-slate-500 text-sm">
                   <i data-lucide="calendar" class="w-10 h-10 mx-auto mb-3 text-slate-600"></i>
-                  Click <strong class="text-slate-300">"Run Auto-Pack"</strong> to process your tasks into a smart timeline.
+                  Select a date and click <strong class="text-slate-300">"Run Auto-Pack"</strong> to process your tasks into a smart timeline.
                 </div>
               </div>
             </div>
@@ -249,24 +257,26 @@
       measurementId: "G-V43HL152FQ"
     };
 
-    let app, auth, db;
-    try {
-      app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getDatabase(app);
-    } catch (e) {
-      console.error("Firebase Initialization Error:", e);
-    }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
     let currentUser = null;
     let currentTaskQueue = [];
+
+    // 初始化日期选择框为今天 (YYYY-MM-DD)
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('schedule-date');
+      if (dateInput) dateInput.value = today;
+    });
 
     // UI Helper
     window.toggleFixedTimeInput = function(checkbox) {
       document.getElementById('fixed-time-container').classList.toggle('hidden', !checkbox.checked);
     };
 
-    // 1. User Registration
+    // Register
     window.handleRegister = async function() {
       const email = document.getElementById('auth-email').value;
       const password = document.getElementById('auth-password').value;
@@ -290,7 +300,7 @@
       }
     };
 
-    // 2. User Login
+    // Login
     window.handleLogin = async function() {
       const email = document.getElementById('auth-email').value;
       const password = document.getElementById('auth-password').value;
@@ -304,12 +314,12 @@
       }
     };
 
-    // 3. User Logout
+    // Logout
     window.handleLogout = function() {
       signOut(auth);
     };
 
-    // 4. Auth Listener (包含 Role 身份校验逻辑)
+    // Auth Listener
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       const authSection = document.getElementById('auth-section');
@@ -325,7 +335,6 @@
         logoutBtn.classList.remove('hidden');
         userDisplay.innerText = `Logged in: ${user.email}`;
 
-        // 查询数据库中该用户的 Role 身份
         try {
           const userSnap = await get(ref(db, `users/${user.uid}`));
           const userData = userSnap.val();
@@ -352,9 +361,10 @@
         userDisplay.innerText = "Not logged in";
         currentTaskQueue = [];
       }
+      setTimeout(() => lucide.createIcons(), 50);
     });
 
-    // 5. Admin Directory Listener
+    // Admin Directory
     function fetchAllUsersDirectory() {
       const usersRef = ref(db, 'users');
       onValue(usersRef, (snapshot) => {
@@ -385,7 +395,7 @@
       });
     }
 
-    // 6. User Tasks Operations (Full Features)
+    // Task Operations
     document.getElementById('task-form').addEventListener('submit', function(e) {
       e.preventDefault();
       if (!currentUser) return alert("Please log in first!");
@@ -467,26 +477,42 @@
       lucide.createIcons();
     }
 
-    // 7. Spatial-Temporal Time-Blocking Engine
+    // Auto Pack Engine (支持自定义日期)
     window.runAutoPackEngine = function() {
       if (currentTaskQueue.length === 0) {
         alert("Please add tasks to your schedule first!");
         return;
       }
 
+      const selectedDateVal = document.getElementById('schedule-date').value;
+      if (!selectedDateVal) {
+        alert("Please select a date for your schedule!");
+        return;
+      }
+
       let fixedTasks = currentTaskQueue.filter(t => t.isFixed).sort((a,b) => (a.startTime || '').localeCompare(b.startTime || ''));
       let flexTasks = currentTaskQueue.filter(t => !t.isFixed);
 
-      let currentTime = new Date();
-      currentTime.setHours(8, 0, 0);
+      // 读取用户设置的日期，并默认从早上 08:00 开始排程
+      let currentTime = new Date(`${selectedDateVal}T08:00:00`);
 
       let allTasks = [...fixedTasks, ...flexTasks];
-      let timelineHTML = '';
+      
+      // 显示选择的日期格式化头部
+      const formattedDateStr = new Date(`${selectedDateVal}T00:00:00`).toLocaleDateString(undefined, {
+        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+      });
+
+      let timelineHTML = `
+        <div class="mb-4 pb-2 border-b border-slate-800 text-xs text-indigo-300 font-semibold flex items-center gap-2">
+          <i data-lucide="calendar-days" class="w-4 h-4"></i> Schedule for: ${formattedDateStr}
+        </div>
+      `;
 
       allTasks.forEach((task) => {
         if (task.isFixed && task.startTime) {
           const [hrs, mins] = task.startTime.split(':');
-          currentTime.setHours(parseInt(hrs), parseInt(mins), 0);
+          currentTime = new Date(`${selectedDateVal}T${hrs.padStart(2, '0')}:${mins.padStart(2, '0')}:00`);
         }
 
         const startTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
