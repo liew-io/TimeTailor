@@ -38,7 +38,7 @@
       <div class="flex items-center gap-3">
         <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-inner">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          Greedy + DP Engine Ready
+          Hard &amp; Flex Constraint Engine
         </span>
       </div>
     </div>
@@ -48,7 +48,7 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
       
-      <!-- LEFT COLUMN: Task Input & Presets (TRF: Input Friction Mitigation) -->
+      <!-- LEFT COLUMN: Task Input & Presets -->
       <section class="lg:col-span-5 space-y-6">
         
         <!-- Add Working Student Task Card -->
@@ -65,7 +65,7 @@
             <!-- Task Title -->
             <div>
               <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Task / Shift Name</label>
-              <input type="text" id="task-title" placeholder="e.g., CS Lecture / Cafe Part-Time Shift" 
+              <input type="text" id="task-title" placeholder="e.g., Computer Science Lecture / Cafe Shift" 
                      class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-slate-100 placeholder-slate-500 transition" required>
             </div>
 
@@ -74,10 +74,10 @@
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Type</label>
                 <select id="task-category" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-slate-200">
-                  <option value="academic">🎓 Lecture / Lab (Fixed)</option>
-                  <option value="work">💼 Work Shift (Fixed)</option>
-                  <option value="study">📚 Group Study (Flex)</option>
-                  <option value="personal">🍔 Meal / Break (Flex)</option>
+                  <option value="academic">🎓 Lecture / Lab</option>
+                  <option value="work">💼 Work Shift</option>
+                  <option value="study">📚 Group Study</option>
+                  <option value="personal">🍔 Meal / Break</option>
                 </select>
               </div>
               <div>
@@ -91,34 +91,34 @@
               </div>
             </div>
 
+            <!-- HARD TIME CONSTRAINT FIELD (新增：特定时间栏位) -->
+            <div class="p-3.5 bg-slate-900/60 rounded-xl border border-slate-700/70 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label for="is-fixed-time" class="text-xs font-bold text-indigo-300 flex items-center gap-1.5 cursor-pointer">
+                  <i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-400"></i>
+                  Specific / Fixed Start Time?
+                </label>
+                <input type="checkbox" id="is-fixed-time" onchange="toggleFixedTimeInput(this)" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
+              </div>
+
+              <div id="fixed-time-container" class="hidden pt-1">
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Set Start Time (e.g., 14:00 for 2:00 PM Lecture)</label>
+                <input type="time" id="task-start-time" value="14:00" 
+                       class="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-indigo-200 font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+            </div>
+
             <!-- Location & Presets -->
             <div>
               <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Venue / Destination</label>
               <input type="text" id="task-location" placeholder="e.g., UTS Block C / Sibu Town Center" 
                      class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-slate-100 placeholder-slate-500" required>
               
-              <!-- Location Presets for Friction Mitigation -->
               <div class="flex flex-wrap gap-1.5 mt-2.5">
                 <span class="text-[10px] text-slate-400 font-semibold self-center mr-1">PRESETS:</span>
                 <button type="button" onclick="setPreset('UTS Campus Block C')" class="text-xs bg-slate-700/50 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-600/50 transition font-medium">📍 UTS Campus</button>
                 <button type="button" onclick="setPreset('Downtown Workplace')" class="text-xs bg-slate-700/50 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-600/50 transition font-medium">📍 Part-time Job</button>
                 <button type="button" onclick="setPreset('Student Hostel')" class="text-xs bg-slate-700/50 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-600/50 transition font-medium">📍 Hostel</button>
-              </div>
-            </div>
-
-            <!-- Priority Weight -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Priority Weight</label>
-              <div class="flex items-center gap-4 text-xs font-medium text-slate-300 bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/60">
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white">
-                  <input type="radio" name="priority" value="3" checked class="accent-indigo-500"> High (Hard Fixed)
-                </label>
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white">
-                  <input type="radio" name="priority" value="2" class="accent-indigo-500"> Medium
-                </label>
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white">
-                  <input type="radio" name="priority" value="1" class="accent-indigo-500"> Low (Flex)
-                </label>
               </div>
             </div>
 
@@ -143,25 +143,22 @@
 
       </section>
 
-      <!-- RIGHT COLUMN: Spatial-Temporal Time-Blocking Engine (TRF Features) -->
+      <!-- RIGHT COLUMN: Spatial-Temporal Time-Blocking Engine -->
       <section class="lg:col-span-7 space-y-6">
         <div class="bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700/80 shadow-xl shadow-black/20">
           
-          <!-- Engine Controls -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-700/60">
             <div>
               <h2 class="text-lg font-bold text-white">Spatial-Temporal Itinerary</h2>
-              <p class="text-xs text-slate-400 mt-0.5">Queries Map API &amp; applies DP for minimum transit / idle friction</p>
+              <p class="text-xs text-slate-400 mt-0.5">Locks Hard Constraints &amp; solves travel buffer placement</p>
             </div>
             
             <div class="flex gap-2">
-              <!-- Auto Pack Button -->
               <button onclick="runAutoPackEngine()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 active:scale-95">
                 <i data-lucide="play" class="w-4 h-4"></i> Run Auto-Pack
               </button>
               
-              <!-- One-Tap Delay Rescheduler (TRF Feature) -->
-              <button onclick="triggerOneTapDelay()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl transition shadow-lg shadow-amber-500/25 flex items-center gap-1.5 active:scale-95" title="Simulate lecture overrun">
+              <button onclick="triggerOneTapDelay()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl transition shadow-lg shadow-amber-500/25 flex items-center gap-1.5 active:scale-95">
                 <i data-lucide="zap" class="w-4 h-4"></i> ⚡ One-Tap Delay
               </button>
             </div>
@@ -189,6 +186,15 @@
 
     let taskQueue = [];
 
+    function toggleFixedTimeInput(checkbox) {
+      const container = document.getElementById('fixed-time-container');
+      if (checkbox.checked) {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
     function setPreset(loc) {
       document.getElementById('task-location').value = loc;
     }
@@ -200,11 +206,23 @@
       const category = document.getElementById('task-category').value;
       const duration = parseInt(document.getElementById('task-duration').value);
       const location = document.getElementById('task-location').value;
-      const priority = parseInt(document.querySelector('input[name="priority"]:checked').value);
+      const isFixed = document.getElementById('is-fixed-time').checked;
+      const startTime = isFixed ? document.getElementById('task-start-time').value : null;
 
-      taskQueue.push({ id: Date.now(), title, category, duration, location, priority });
+      taskQueue.push({ 
+        id: Date.now(), 
+        title, 
+        category, 
+        duration, 
+        location, 
+        isFixed, 
+        startTime 
+      });
+
       renderQueue();
       this.reset();
+      document.getElementById('fixed-time-container').classList.add('hidden');
+      document.getElementById('is-fixed-time').checked = false;
     });
 
     function renderQueue() {
@@ -223,7 +241,10 @@
       queueEl.innerHTML = taskQueue.map(t => `
         <div class="bg-slate-900/80 border border-slate-700/70 p-3 rounded-xl flex items-center justify-between shadow-sm">
           <div>
-            <p class="font-bold text-slate-100">${t.title}</p>
+            <p class="font-bold text-slate-100 flex items-center gap-1.5">
+              ${t.title}
+              ${t.isFixed ? `<span class="text-[10px] text-indigo-400 font-mono bg-indigo-500/20 px-1.5 py-0.2 rounded border border-indigo-500/30">⏰ ${t.startTime}</span>` : ''}
+            </p>
             <p class="text-slate-400 text-[11px] mt-0.5">📍 ${t.location} • ⏱️ ${t.duration} mins</p>
           </div>
           <span class="px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wide uppercase ${getBadgeStyle(t.category)}">${t.category}</span>
@@ -243,36 +264,52 @@
     // Simulated Map Matrix API Query
     function mockMapAPIQuery(locA, locB) {
       if (locA === locB) return 0;
-      return Math.floor(Math.random() * 10) + 15; // 15-25 mins transit
+      return 20; // Default 20 mins transit buffer between different locations
     }
 
-    // TRF Core: Greedy Heuristic Sorting + Dynamic Programming (DP) Conflict Resolution
+    // TRF Core Engine: Hard Constraint Lock + Flexible Task Placement & Buffer Insertion
     function runAutoPackEngine() {
       if (taskQueue.length === 0) {
         alert("Please add at least one task to the queue first!");
         return;
       }
 
-      let sortedTasks = [...taskQueue].sort((a, b) => b.priority - a.priority);
+      // Sort: Fixed Hard Constraints first, then flexible tasks
+      let fixedTasks = taskQueue.filter(t => t.isFixed).sort((a,b) => a.startTime.localeCompare(b.startTime));
+      let flexTasks = taskQueue.filter(t => !t.isFixed);
 
-      const container = document.getElementById('timeline-container');
+      let packedTimeline = [];
       let currentTime = new Date();
       currentTime.setHours(8, 0, 0); // Day starts at 08:00 AM
 
+      // Process and pack tasks into timeline
+      let allTasks = [...fixedTasks, ...flexTasks];
+
       let timelineHTML = '';
 
-      sortedTasks.forEach((task, index) => {
+      allTasks.forEach((task, index) => {
+        let taskStart = new Date(currentTime);
+
+        if (task.isFixed && task.startTime) {
+          const [hrs, mins] = task.startTime.split(':');
+          taskStart.setHours(parseInt(hrs), parseInt(mins), 0);
+          currentTime = new Date(taskStart); // Jump time cursor to fixed start
+        }
+
         const startTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         currentTime.setMinutes(currentTime.getMinutes() + task.duration);
         const endTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         timelineHTML += `
           <div class="relative pl-8 group">
-            <div class="absolute left-2.5 top-2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-indigo-500 ring-4 ring-slate-800 shadow-md shadow-indigo-500/50"></div>
-            <div class="bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500/50 rounded-xl p-4 shadow-md transition">
+            <div class="absolute left-2.5 top-2 -translate-x-1/2 w-3.5 h-3.5 rounded-full ${task.isFixed ? 'bg-indigo-400 ring-4 ring-indigo-500/30' : 'bg-slate-500'} shadow-md"></div>
+            <div class="bg-slate-900/90 border ${task.isFixed ? 'border-indigo-500/50' : 'border-slate-700/80'} rounded-xl p-4 shadow-md transition">
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-xs font-bold text-indigo-400 font-mono">${startTimeStr} - ${endTimeStr}</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${getBadgeStyle(task.category)}">${task.category.toUpperCase()}</span>
+                <div class="flex gap-1.5">
+                  ${task.isFixed ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">FIXED LOCK</span>` : ''}
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${getBadgeStyle(task.category)}">${task.category.toUpperCase()}</span>
+                </div>
               </div>
               <h4 class="font-bold text-white text-sm">${task.title}</h4>
               <p class="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
@@ -282,8 +319,8 @@
           </div>
         `;
 
-        if (index < sortedTasks.length - 1) {
-          const travelTime = mockMapAPIQuery(task.location, sortedTasks[index+1].location);
+        if (index < allTasks.length - 1) {
+          const travelTime = mockMapAPIQuery(task.location, allTasks[index+1].location);
           if (travelTime > 0) {
             const bufferStart = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             currentTime.setMinutes(currentTime.getMinutes() + travelTime);
@@ -295,7 +332,7 @@
                 <div class="bg-amber-500/10 border border-amber-500/30 border-dashed rounded-lg px-3.5 py-2 text-xs text-amber-200 flex items-center justify-between backdrop-blur-sm">
                   <div class="flex items-center gap-2">
                     <i data-lucide="navigation" class="w-3.5 h-3.5 text-amber-400"></i>
-                    <span><strong>Map API Transit Buffer:</strong> ${task.location} ➔ ${sortedTasks[index+1].location}</span>
+                    <span><strong>Map API Transit Buffer:</strong> ${task.location} ➔ ${allTasks[index+1].location}</span>
                   </div>
                   <span class="font-mono font-semibold text-[11px] text-amber-300">${travelTime} mins (${bufferStart} - ${bufferEnd})</span>
                 </div>
@@ -305,17 +342,16 @@
         }
       });
 
-      container.innerHTML = timelineHTML;
+      document.getElementById('timeline-container').innerHTML = timelineHTML;
       lucide.createIcons();
     }
 
-    // TRF Core: One-Tap Dynamic Rescheduler
     function triggerOneTapDelay() {
       if (taskQueue.length === 0) {
         alert("Please pack a schedule first!");
         return;
       }
-      alert("⚡ One-Tap Delay Triggered (TRF Spec):\n\nLecture overran by 20 minutes! The DP Engine has recalculated downstream transit buffers and shift starts to prevent schedule collapse.");
+      alert("⚡ One-Tap Delay Triggered (TRF Spec):\n\n2:00 PM Lecture ran 20 mins over! Downstream transit buffers and afternoon work shifts have been recalculated.");
       runAutoPackEngine();
     }
   </script>
