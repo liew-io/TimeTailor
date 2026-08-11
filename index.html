@@ -91,7 +91,7 @@
               </div>
             </div>
 
-            <!-- HARD TIME CONSTRAINT FIELD (新增：特定时间栏位) -->
+            <!-- HARD TIME CONSTRAINT FIELD -->
             <div class="p-3.5 bg-slate-900/60 rounded-xl border border-slate-700/70 space-y-2.5">
               <div class="flex items-center justify-between">
                 <label for="is-fixed-time" class="text-xs font-bold text-indigo-300 flex items-center gap-1.5 cursor-pointer">
@@ -128,11 +128,14 @@
           </form>
         </div>
 
-        <!-- Unscheduled Queue List -->
+        <!-- Unscheduled Queue List (包含单项删除与清空按钮) -->
         <div class="bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700/80 shadow-xl shadow-black/20">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-white text-sm">Unpacked Input Queue</h3>
-            <span id="queue-count" class="text-xs font-bold bg-slate-700 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-600">0 tasks</span>
+            <div class="flex items-center gap-2">
+              <span id="queue-count" class="text-xs font-bold bg-slate-700 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-600">0 tasks</span>
+              <button onclick="clearAllQueue()" class="text-xs text-rose-400 hover:text-rose-300 hover:underline transition font-medium hidden" id="clear-all-btn">Clear All</button>
+            </div>
           </div>
           <div id="task-queue" class="space-y-2.5 text-xs">
             <div class="text-center py-8 text-slate-500 border-2 border-dashed border-slate-700/80 rounded-xl">
@@ -225,12 +228,27 @@
       document.getElementById('is-fixed-time').checked = false;
     });
 
+    // 单个任务删除功能
+    function deleteTask(id) {
+      taskQueue = taskQueue.filter(t => t.id !== id);
+      renderQueue();
+    }
+
+    // 一键清空队列功能
+    function clearAllQueue() {
+      taskQueue = [];
+      renderQueue();
+    }
+
     function renderQueue() {
       const queueEl = document.getElementById('task-queue');
       const countEl = document.getElementById('queue-count');
+      const clearBtn = document.getElementById('clear-all-btn');
+      
       countEl.innerText = `${taskQueue.length} tasks`;
 
       if (taskQueue.length === 0) {
+        clearBtn.classList.add('hidden');
         queueEl.innerHTML = `
           <div class="text-center py-8 text-slate-500 border-2 border-dashed border-slate-700/80 rounded-xl">
             Queue is empty. Add tasks above to test the Greedy/DP Engine.
@@ -238,8 +256,10 @@
         return;
       }
 
+      clearBtn.classList.remove('hidden');
+
       queueEl.innerHTML = taskQueue.map(t => `
-        <div class="bg-slate-900/80 border border-slate-700/70 p-3 rounded-xl flex items-center justify-between shadow-sm">
+        <div class="bg-slate-900/80 border border-slate-700/70 p-3 rounded-xl flex items-center justify-between shadow-sm hover:border-slate-600 transition">
           <div>
             <p class="font-bold text-slate-100 flex items-center gap-1.5">
               ${t.title}
@@ -247,9 +267,16 @@
             </p>
             <p class="text-slate-400 text-[11px] mt-0.5">📍 ${t.location} • ⏱️ ${t.duration} mins</p>
           </div>
-          <span class="px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wide uppercase ${getBadgeStyle(t.category)}">${t.category}</span>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wide uppercase ${getBadgeStyle(t.category)}">${t.category}</span>
+            <button type="button" onclick="deleteTask(${t.id})" class="text-slate-500 hover:text-rose-400 p-1 transition rounded-lg hover:bg-slate-800" title="Delete task">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
       `).join('');
+
+      lucide.createIcons();
     }
 
     function getBadgeStyle(cat) {
@@ -264,27 +291,23 @@
     // Simulated Map Matrix API Query
     function mockMapAPIQuery(locA, locB) {
       if (locA === locB) return 0;
-      return 20; // Default 20 mins transit buffer between different locations
+      return 20;
     }
 
-    // TRF Core Engine: Hard Constraint Lock + Flexible Task Placement & Buffer Insertion
+    // TRF Core Engine
     function runAutoPackEngine() {
       if (taskQueue.length === 0) {
         alert("Please add at least one task to the queue first!");
         return;
       }
 
-      // Sort: Fixed Hard Constraints first, then flexible tasks
       let fixedTasks = taskQueue.filter(t => t.isFixed).sort((a,b) => a.startTime.localeCompare(b.startTime));
       let flexTasks = taskQueue.filter(t => !t.isFixed);
 
-      let packedTimeline = [];
       let currentTime = new Date();
-      currentTime.setHours(8, 0, 0); // Day starts at 08:00 AM
+      currentTime.setHours(8, 0, 0);
 
-      // Process and pack tasks into timeline
       let allTasks = [...fixedTasks, ...flexTasks];
-
       let timelineHTML = '';
 
       allTasks.forEach((task, index) => {
@@ -293,7 +316,7 @@
         if (task.isFixed && task.startTime) {
           const [hrs, mins] = task.startTime.split(':');
           taskStart.setHours(parseInt(hrs), parseInt(mins), 0);
-          currentTime = new Date(taskStart); // Jump time cursor to fixed start
+          currentTime = new Date(taskStart);
         }
 
         const startTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -351,7 +374,7 @@
         alert("Please pack a schedule first!");
         return;
       }
-      alert("⚡ One-Tap Delay Triggered (TRF Spec):\n\n2:00 PM Lecture ran 20 mins over! Downstream transit buffers and afternoon work shifts have been recalculated.");
+      alert("⚡ One-Tap Delay Triggered (TRF Spec):\n\nLecture ran 20 mins over! Downstream transit buffers and afternoon work shifts have been recalculated.");
       runAutoPackEngine();
     }
   </script>
