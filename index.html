@@ -3,63 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TimeTailor: Auth & Admin Portal</title>
+  <title>TimeTailor: Smart Task-Time Packing & Admin Portal</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
+<body class="bg-slate-900 text-slate-100 antialiased min-h-screen selection:bg-indigo-500 selection:text-white">
 
-  <!-- 顶部导航 -->
+  <!-- Background Decorative Glow -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Top Header Navigation -->
   <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-indigo-600 text-white p-2 rounded-xl">
+        <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/30">
           <i data-lucide="clock" class="w-5 h-5"></i>
         </div>
-        <h1 class="text-lg font-extrabold text-white">TimeTailor</h1>
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+            TimeTailor
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">Pro Prototype</span>
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium">Smart Task-Time Packing System (FYP Project)</p>
+        </div>
       </div>
-      
-      <!-- 用户状态控制区域 -->
+
+      <!-- Auth Status Control -->
       <div id="auth-status-bar" class="flex items-center gap-3 text-xs">
-        <span id="user-display" class="text-slate-400">Not logged in</span>
+        <span id="user-display" class="text-slate-400 font-medium">Not logged in</span>
         <button id="logout-btn" onclick="window.handleLogout()" class="hidden bg-rose-500/20 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-lg hover:bg-rose-500/30 transition">Logout</button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-8">
+  <!-- Main Work Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
 
-    <!-- 1. 登录/注册模块 (未登录时显示) -->
-    <section id="auth-section" class="max-w-md mx-auto bg-slate-800/90 p-8 rounded-2xl border border-slate-700 shadow-2xl space-y-6">
+    <!-- 1. AUTH SECTION (Shown when logged out) -->
+    <section id="auth-section" class="max-w-md mx-auto bg-slate-800/90 backdrop-blur-xl p-8 rounded-2xl border border-slate-700/80 shadow-2xl space-y-6">
       <div class="text-center">
         <h2 class="text-xl font-bold text-white">Welcome to TimeTailor</h2>
-        <p class="text-xs text-slate-400 mt-1">Sign in or create an account to start</p>
+        <p class="text-xs text-slate-400 mt-1">Sign in or create an account to sync your schedule</p>
       </div>
 
       <form id="auth-form" class="space-y-4" onsubmit="return false;">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Email</label>
-          <input type="email" id="auth-email" placeholder="student@example.com" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 text-white" required>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Email</label>
+          <input type="email" id="auth-email" placeholder="student@example.com" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-white" required>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Password (Min 6 chars)</label>
-          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 text-white" required>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Password (Min 6 chars)</label>
+          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-white" required>
         </div>
 
         <div class="grid grid-cols-2 gap-3 pt-2">
-          <button type="button" id="login-btn" onclick="window.handleLogin()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm transition">Log In</button>
-          <button type="button" id="register-btn" onclick="window.handleRegister()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 rounded-xl text-sm transition">Register</button>
+          <button type="button" onclick="window.handleLogin()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm transition">Log In</button>
+          <button type="button" onclick="window.handleRegister()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 rounded-xl text-sm transition">Register</button>
         </div>
       </form>
     </section>
 
-    <!-- 2. 主面板 (登录后显示) -->
+    <!-- 2. MAIN DASHBOARD SECTION (Shown when logged in) -->
     <div id="app-section" class="hidden space-y-8">
-      
-      <!-- 管理员特权版块：查看所有注册用户资料 -->
-      <section id="admin-panel" class="bg-indigo-950/40 border border-indigo-500/30 p-6 rounded-2xl shadow-xl">
+
+      <!-- ADMIN DASHBOARD: View All Registered Users Directory -->
+      <section id="admin-panel" class="bg-indigo-950/40 border border-indigo-500/30 p-6 rounded-2xl shadow-xl backdrop-blur-md">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <i data-lucide="shield-check" class="w-5 h-5 text-indigo-400"></i>
@@ -70,7 +84,7 @@
 
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-800 text-slate-400 uppercase tracking-wider border-b border-slate-700">
+            <thead class="bg-slate-800/80 text-slate-400 uppercase tracking-wider border-b border-slate-700">
               <tr>
                 <th class="p-3">User ID (UID)</th>
                 <th class="p-3">Email Address</th>
@@ -87,38 +101,141 @@
         </div>
       </section>
 
-      <!-- 任务区 -->
-      <section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div class="lg:col-span-5 bg-slate-800/90 p-6 rounded-2xl border border-slate-700">
-          <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-400"></i> Add Your Personal Task
-          </h3>
-          <form id="user-task-form" class="space-y-4">
-            <input type="text" id="task-title" placeholder="Task Name" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white" required>
-            <input type="text" id="task-location" placeholder="Venue / Destination" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white" required>
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl font-semibold text-sm">Save Task</button>
-          </form>
-        </div>
+      <!-- ORIGINAL TIMETAILOR SYSTEM (Full Feature Set) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- LEFT COLUMN: Task Input & Presets -->
+        <section class="lg:col-span-5 space-y-6">
+          
+          <div class="bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700/80 shadow-xl shadow-black/20">
+            <div class="flex items-center justify-between mb-5">
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i>
+                Add Commitment
+              </h2>
+              <span class="text-[10px] bg-emerald-500/10 text-emerald-300 font-semibold px-2.5 py-1 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Cloud Synced
+              </span>
+            </div>
+            
+            <form id="task-form" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Task / Shift Name</label>
+                <input type="text" id="task-title" placeholder="e.g., Computer Science Lecture / Cafe Shift" 
+                       class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-slate-100 placeholder-slate-500 transition" required>
+              </div>
 
-        <div class="lg:col-span-7 bg-slate-800/90 p-6 rounded-2xl border border-slate-700">
-          <h3 class="font-bold text-white text-base mb-4">Your Synced Tasks</h3>
-          <div id="user-tasks-container" class="space-y-2.5 text-xs text-slate-400">
-            No tasks found.
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Type</label>
+                  <select id="task-category" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-slate-200">
+                    <option value="academic">🎓 Lecture / Lab</option>
+                    <option value="work">💼 Work Shift</option>
+                    <option value="study">📚 Group Study</option>
+                    <option value="personal">🍔 Meal / Break</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Est. Duration</label>
+                  <select id="task-duration" class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-slate-200">
+                    <option value="30">30 mins</option>
+                    <option value="60" selected>1 hour</option>
+                    <option value="120">2 hours</option>
+                    <option value="180">3 hours</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- HARD TIME CONSTRAINT -->
+              <div class="p-3.5 bg-slate-900/60 rounded-xl border border-slate-700/70 space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <label for="is-fixed-time" class="text-xs font-bold text-indigo-300 flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    Specific / Fixed Start Time?
+                  </label>
+                  <input type="checkbox" id="is-fixed-time" onchange="window.toggleFixedTimeInput(this)" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
+                </div>
+
+                <div id="fixed-time-container" class="hidden pt-1">
+                  <label class="block text-[11px] font-semibold text-slate-400 mb-1">Set Start Time (e.g., 14:00 for 2:00 PM Lecture)</label>
+                  <input type="time" id="task-start-time" value="14:00" 
+                         class="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-indigo-200 font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Venue / Destination</label>
+                <input type="text" id="task-location" placeholder="e.g., UTS Campus Block C" 
+                       class="w-full px-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-slate-100 placeholder-slate-500" required>
+              </div>
+
+              <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition transform active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                <i data-lucide="cloud-upload" class="w-4 h-4"></i> Save Task to User Profile
+              </button>
+            </form>
           </div>
-        </div>
-      </section>
+
+          <!-- Realtime Task Queue -->
+          <div class="bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700/80 shadow-xl shadow-black/20">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-white text-sm">Your Cloud Queue</h3>
+              <div class="flex items-center gap-2">
+                <span id="queue-count" class="text-xs font-bold bg-slate-700 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-600">0 tasks</span>
+                <button onclick="window.clearAllQueue()" class="text-xs text-rose-400 hover:text-rose-300 hover:underline transition font-medium hidden" id="clear-all-btn">Clear All</button>
+              </div>
+            </div>
+            <div id="task-queue" class="space-y-2.5 text-xs">
+              <div class="text-center py-8 text-slate-500 border-2 border-dashed border-slate-700/80 rounded-xl">
+                Loading tasks...
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- RIGHT COLUMN: Spatial-Temporal Time-Blocking Engine -->
+        <section class="lg:col-span-7 space-y-6">
+          <div class="bg-slate-800/90 backdrop-blur-xl p-6 rounded-2xl border border-slate-700/80 shadow-xl shadow-black/20">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-700/60">
+              <div>
+                <h2 class="text-lg font-bold text-white">Spatial-Temporal Itinerary</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Packs Cloud Tasks with Map & Waze Navigation Links</p>
+              </div>
+              
+              <button onclick="window.runAutoPackEngine()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 active:scale-95">
+                <i data-lucide="play" class="w-4 h-4"></i> Run Auto-Pack
+              </button>
+            </div>
+
+            <!-- Timeline Output View -->
+            <div class="pt-6">
+              <div id="timeline-container" class="space-y-4 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-slate-700/80">
+                <div class="pl-8 py-16 text-center text-slate-500 text-sm">
+                  <i data-lucide="calendar" class="w-10 h-10 mx-auto mb-3 text-slate-600"></i>
+                  Click <strong class="text-slate-300">"Run Auto-Pack"</strong> to process your tasks into a smart timeline.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
 
     </div>
 
   </main>
 
+  <!-- Firebase Modular JS SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { 
-      getDatabase, ref, set, push, onValue 
+      getDatabase, ref, set, push, onValue, remove 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -138,12 +255,18 @@
       auth = getAuth(app);
       db = getDatabase(app);
     } catch (e) {
-      console.error("Firebase init failed:", e);
+      console.error("Firebase Initialization Error:", e);
     }
 
     let currentUser = null;
+    let currentTaskQueue = [];
 
-    // 显式挂载到 window 对象
+    // UI Helper
+    window.toggleFixedTimeInput = function(checkbox) {
+      document.getElementById('fixed-time-container').classList.toggle('hidden', !checkbox.checked);
+    };
+
+    // 1. User Registration
     window.handleRegister = async function() {
       const email = document.getElementById('auth-email').value;
       const password = document.getElementById('auth-password').value;
@@ -167,6 +290,7 @@
       }
     };
 
+    // 2. User Login
     window.handleLogin = async function() {
       const email = document.getElementById('auth-email').value;
       const password = document.getElementById('auth-password').value;
@@ -180,10 +304,12 @@
       }
     };
 
+    // 3. User Logout
     window.handleLogout = function() {
       signOut(auth);
     };
 
+    // 4. Auth Listener
     onAuthStateChanged(auth, (user) => {
       currentUser = user;
       const authSection = document.getElementById('auth-section');
@@ -197,17 +323,19 @@
         logoutBtn.classList.remove('hidden');
         userDisplay.innerText = `Logged in: ${user.email}`;
 
-        fetchAllUsers();
-        fetchUserTasks(user.uid);
+        fetchAllUsersDirectory();
+        listenToUserTasks(user.uid);
       } else {
         authSection.classList.remove('hidden');
         appSection.classList.add('hidden');
         logoutBtn.classList.add('hidden');
         userDisplay.innerText = "Not logged in";
+        currentTaskQueue = [];
       }
     });
 
-    function fetchAllUsers() {
+    // 5. Admin Directory Listener
+    function fetchAllUsersDirectory() {
       const usersRef = ref(db, 'users');
       onValue(usersRef, (snapshot) => {
         const usersData = snapshot.val();
@@ -237,36 +365,135 @@
       });
     }
 
-    document.getElementById('user-task-form').addEventListener('submit', (e) => {
+    // 6. User Tasks Operations (Full Features)
+    document.getElementById('task-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      if (!currentUser) return;
+      if (!currentUser) return alert("Please log in first!");
 
       const title = document.getElementById('task-title').value;
+      const category = document.getElementById('task-category').value;
+      const duration = parseInt(document.getElementById('task-duration').value);
       const location = document.getElementById('task-location').value;
+      const isFixed = document.getElementById('is-fixed-time').checked;
+      const startTime = isFixed ? document.getElementById('task-start-time').value : null;
 
       push(ref(db, `tasks/${currentUser.uid}`), {
-        title, location, createdAt: Date.now()
+        title, category, duration, location, isFixed, startTime,
+        createdAt: Date.now()
       });
 
-      e.target.reset();
+      this.reset();
+      document.getElementById('fixed-time-container').classList.add('hidden');
+      document.getElementById('is-fixed-time').checked = false;
     });
 
-    function fetchUserTasks(uid) {
-      onValue(ref(db, `tasks/${uid}`), (snapshot) => {
+    function listenToUserTasks(uid) {
+      const userTasksRef = ref(db, `tasks/${uid}`);
+      onValue(userTasksRef, (snapshot) => {
         const data = snapshot.val();
-        const container = document.getElementById('user-tasks-container');
-        if (!data) {
-          container.innerHTML = `<p class="text-slate-500">No tasks saved yet.</p>`;
-          return;
+        currentTaskQueue = [];
+        if (data) {
+          Object.keys(data).forEach(key => {
+            currentTaskQueue.push({ id: key, ...data[key] });
+          });
         }
-        container.innerHTML = Object.keys(data).map(k => `
-          <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl flex justify-between">
-            <span class="font-bold text-white">${data[k].title}</span>
-            <span>📍 ${data[k].location}</span>
-          </div>
-        `).join('');
+        renderQueue();
       });
     }
+
+    window.deleteTask = function(id) {
+      if (!currentUser) return;
+      remove(ref(db, `tasks/${currentUser.uid}/${id}`));
+    };
+
+    window.clearAllQueue = function() {
+      if (!currentUser) return;
+      remove(ref(db, `tasks/${currentUser.uid}`));
+    };
+
+    function renderQueue() {
+      const queueEl = document.getElementById('task-queue');
+      const countEl = document.getElementById('queue-count');
+      const clearBtn = document.getElementById('clear-all-btn');
+      
+      countEl.innerText = `${currentTaskQueue.length} tasks`;
+
+      if (currentTaskQueue.length === 0) {
+        clearBtn.classList.add('hidden');
+        queueEl.innerHTML = `
+          <div class="text-center py-8 text-slate-500 border-2 border-dashed border-slate-700/80 rounded-xl">
+            No tasks in your cloud queue. Add tasks above.
+          </div>`;
+        return;
+      }
+
+      clearBtn.classList.remove('hidden');
+
+      queueEl.innerHTML = currentTaskQueue.map(t => `
+        <div class="bg-slate-900/80 border border-slate-700/70 p-3 rounded-xl flex items-center justify-between shadow-sm">
+          <div>
+            <p class="font-bold text-slate-100 flex items-center gap-1.5">
+              ${t.title}
+              ${t.isFixed ? `<span class="text-[10px] text-indigo-400 font-mono bg-indigo-500/20 px-1.5 py-0.2 rounded border border-indigo-500/30">⏰ ${t.startTime}</span>` : ''}
+            </p>
+            <p class="text-slate-400 text-[11px] mt-0.5">📍 ${t.location} • ⏱️ ${t.duration} mins</p>
+          </div>
+          <button type="button" onclick="window.deleteTask('${t.id}')" class="text-slate-500 hover:text-rose-400 p-1 transition rounded-lg hover:bg-slate-800">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // 7. Spatial-Temporal Time-Blocking Engine
+    window.runAutoPackEngine = function() {
+      if (currentTaskQueue.length === 0) {
+        alert("Please add tasks to your schedule first!");
+        return;
+      }
+
+      let fixedTasks = currentTaskQueue.filter(t => t.isFixed).sort((a,b) => (a.startTime || '').localeCompare(b.startTime || ''));
+      let flexTasks = currentTaskQueue.filter(t => !t.isFixed);
+
+      let currentTime = new Date();
+      currentTime.setHours(8, 0, 0);
+
+      let allTasks = [...fixedTasks, ...flexTasks];
+      let timelineHTML = '';
+
+      allTasks.forEach((task) => {
+        if (task.isFixed && task.startTime) {
+          const [hrs, mins] = task.startTime.split(':');
+          currentTime.setHours(parseInt(hrs), parseInt(mins), 0);
+        }
+
+        const startTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        currentTime.setMinutes(currentTime.getMinutes() + (task.duration || 60));
+        const endTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        timelineHTML += `
+          <div class="relative pl-8 group">
+            <div class="absolute left-2.5 top-2 -translate-x-1/2 w-3.5 h-3.5 rounded-full ${task.isFixed ? 'bg-indigo-400 ring-4 ring-indigo-500/30' : 'bg-slate-500'} shadow-md"></div>
+            <div class="bg-slate-900/90 border ${task.isFixed ? 'border-indigo-500/50' : 'border-slate-700/80'} rounded-xl p-4 shadow-md transition">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-indigo-400 font-mono">${startTimeStr} - ${endTimeStr}</span>
+                ${task.isFixed ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">FIXED LOCK</span>` : ''}
+              </div>
+              <h4 class="font-bold text-white text-sm">${task.title}</h4>
+              <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                <span class="text-slate-400">📍 ${task.location}</span>
+                <a href="https://waze.com/ul?q=${encodeURIComponent(task.location)}&navigate=yes" target="_blank" class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 text-[11px] font-semibold border border-sky-500/30">Waze</a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('timeline-container').innerHTML = timelineHTML;
+      lucide.createIcons();
+    };
 
     lucide.createIcons();
   </script>
