@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TimeTailor: Smart Task-Time Packing & Admin Portal</title>
+  <title>TimeTailor: Smart Task-Time Packing & Portal</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -28,7 +28,7 @@
         <div>
           <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
             TimeTailor
-            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">Pro Prototype</span>
+            <span id="role-badge" class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">User</span>
           </h1>
           <p class="text-[11px] text-slate-400 font-medium">Smart Task-Time Packing System (FYP Project)</p>
         </div>
@@ -72,8 +72,8 @@
     <!-- 2. MAIN DASHBOARD SECTION (Shown when logged in) -->
     <div id="app-section" class="hidden space-y-8">
 
-      <!-- ADMIN DASHBOARD: View All Registered Users Directory -->
-      <section id="admin-panel" class="bg-indigo-950/40 border border-indigo-500/30 p-6 rounded-2xl shadow-xl backdrop-blur-md">
+      <!-- ADMIN DASHBOARD: 只有 role === 'admin' 才会显示这个区块 -->
+      <section id="admin-panel" class="hidden bg-indigo-950/40 border border-indigo-500/30 p-6 rounded-2xl shadow-xl backdrop-blur-md">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <i data-lucide="shield-check" class="w-5 h-5 text-indigo-400"></i>
@@ -235,7 +235,7 @@
       getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { 
-      getDatabase, ref, set, push, onValue, remove 
+      getDatabase, ref, set, push, onValue, get, remove 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -309,13 +309,15 @@
       signOut(auth);
     };
 
-    // 4. Auth Listener
-    onAuthStateChanged(auth, (user) => {
+    // 4. Auth Listener (包含 Role 身份校验逻辑)
+    onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       const authSection = document.getElementById('auth-section');
       const appSection = document.getElementById('app-section');
       const logoutBtn = document.getElementById('logout-btn');
       const userDisplay = document.getElementById('user-display');
+      const adminPanel = document.getElementById('admin-panel');
+      const roleBadge = document.getElementById('role-badge');
 
       if (user) {
         authSection.classList.add('hidden');
@@ -323,11 +325,29 @@
         logoutBtn.classList.remove('hidden');
         userDisplay.innerText = `Logged in: ${user.email}`;
 
-        fetchAllUsersDirectory();
+        // 查询数据库中该用户的 Role 身份
+        try {
+          const userSnap = await get(ref(db, `users/${user.uid}`));
+          const userData = userSnap.val();
+          const userRole = userData?.role || "student";
+
+          roleBadge.innerText = userRole.toUpperCase();
+
+          if (userRole === "admin") {
+            adminPanel.classList.remove('hidden');
+            fetchAllUsersDirectory();
+          } else {
+            adminPanel.classList.add('hidden');
+          }
+        } catch (err) {
+          adminPanel.classList.add('hidden');
+        }
+
         listenToUserTasks(user.uid);
       } else {
         authSection.classList.remove('hidden');
         appSection.classList.add('hidden');
+        adminPanel.classList.add('hidden');
         logoutBtn.classList.add('hidden');
         userDisplay.innerText = "Not logged in";
         currentTaskQueue = [];
