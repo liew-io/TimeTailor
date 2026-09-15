@@ -6,44 +6,55 @@
   <title>TimeTailor: Smart Task-Time Packing & Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { 
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
     }
-    /* Clean light mode scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    /* Elegant scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
     
-    /* Apple-like soft shadow for cards */
+    /* Apple-like ultra smooth shadow */
     .apple-shadow {
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .apple-glass {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
     }
   </style>
 </head>
-<body class="bg-[#F5F5F7] text-[#1D1D1F] antialiased min-h-screen selection:bg-blue-200 selection:text-blue-900 relative overflow-x-hidden">
+<body class="text-[#1D1D1F] antialiased min-h-screen selection:bg-blue-200 selection:text-blue-900 relative overflow-x-hidden">
   
+  <!-- Subtle Ambient Background -->
+  <div class="fixed inset-0 z-[-1] bg-[#F5F5F7] overflow-hidden">
+    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-400/10 rounded-full blur-[100px] mix-blend-multiply opacity-70"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-indigo-300/10 rounded-full blur-[120px] mix-blend-multiply opacity-60"></div>
+  </div>
+
   <!-- Header -->
-  <header class="bg-white/70 backdrop-blur-xl border-b border-black/5 sticky top-0 z-50">
+  <header class="apple-glass border-b border-black/[0.04] sticky top-0 z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3 group cursor-pointer">
-        <div class="bg-[#0071E3] text-white p-2 rounded-xl group-hover:scale-105 transition-transform duration-300">
+        <div class="bg-gradient-to-br from-[#0071E3] to-[#005bb5] text-white p-2 rounded-xl shadow-sm group-hover:scale-105 transition-all duration-300">
           <i data-lucide="clock" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold tracking-tight text-gray-900 flex items-center gap-2">
+          <h1 class="text-[17px] font-semibold tracking-tight text-gray-900 flex items-center gap-2">
             TimeTailor
-            <span id="role-badge" class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 font-semibold hidden">USER</span>
+            <span id="role-badge" class="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 font-bold hidden">USER</span>
           </h1>
-          <p class="text-[11px] text-gray-500 font-medium">Smart Task-Time Packing System</p>
+          <p class="text-[11px] text-gray-500 font-medium tracking-wide">Smart Packing Engine</p>
         </div>
       </div>
       <div id="auth-status-bar" class="flex items-center gap-4 text-sm">
-        <span id="user-display" class="text-gray-500 font-medium text-xs bg-gray-100/80 px-3 py-1.5 rounded-full">Not logged in</span>
-        <button id="logout-btn" onclick="window.handleLogout()" class="hidden flex items-center gap-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors duration-200 text-xs font-medium">
-          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+        <span id="user-display" class="text-gray-500 font-medium text-xs bg-black/5 px-3 py-1.5 rounded-full">Not logged in</span>
+        <button id="logout-btn" onclick="window.handleLogout()" class="hidden flex items-center gap-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-full transition-all duration-200 text-xs font-semibold">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
         </button>
       </div>
     </div>
@@ -52,28 +63,26 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
     
     <!-- Auth Section -->
-    <section id="auth-section" class="max-w-md mx-auto bg-white p-8 rounded-[2rem] apple-shadow space-y-8 mt-12 border border-black/[0.02]">
-      <div class="text-center space-y-2 pt-2">
-        <div class="inline-flex justify-center items-center w-14 h-14 rounded-full bg-blue-50 mb-3">
-          <i data-lucide="user" class="w-6 h-6 text-[#0071E3]"></i>
+    <section id="auth-section" class="max-w-sm mx-auto bg-white/80 backdrop-blur-xl p-8 rounded-[2.5rem] apple-shadow space-y-8 mt-16 border border-white">
+      <div class="text-center space-y-2 pt-4">
+        <div class="inline-flex justify-center items-center w-16 h-16 rounded-2xl bg-blue-50 mb-4 shadow-inner">
+          <i data-lucide="fingerprint" class="w-8 h-8 text-[#0071E3]"></i>
         </div>
         <h2 class="text-2xl font-semibold text-gray-900 tracking-tight">Sign In</h2>
-        <p class="text-sm text-gray-500">Access your TimeTailor workspace</p>
+        <p class="text-sm text-gray-500 font-medium">Access your intelligent workspace</p>
       </div>
-      <form id="auth-form" class="space-y-5" onsubmit="return false;">
+      <form id="auth-form" class="space-y-4" onsubmit="return false;">
         <div class="space-y-1.5">
-          <label class="block text-xs font-medium text-gray-500 ml-1">Email</label>
-          <input type="email" id="auth-email" placeholder="name@example.com" class="w-full px-4 py-3.5 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all duration-200" required>
+          <input type="email" id="auth-email" placeholder="Email address" class="w-full px-5 py-4 bg-gray-50/50 border border-black/[0.04] rounded-2xl focus:ring-0 focus:border-[#0071E3]/40 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,113,227,0.1)] outline-none text-sm text-gray-900 transition-all duration-300 placeholder:text-gray-400" required>
         </div>
         <div class="space-y-1.5">
-          <label class="block text-xs font-medium text-gray-500 ml-1">Password</label>
-          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3.5 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all duration-200" required>
+          <input type="password" id="auth-password" placeholder="Password" class="w-full px-5 py-4 bg-gray-50/50 border border-black/[0.04] rounded-2xl focus:ring-0 focus:border-[#0071E3]/40 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,113,227,0.1)] outline-none text-sm text-gray-900 transition-all duration-300 placeholder:text-gray-400" required>
         </div>
-        <div class="flex flex-col gap-3 pt-4">
-          <button type="button" onclick="window.handleLogin()" class="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-medium py-3.5 rounded-xl text-sm transition-all duration-200 active:scale-[0.98]">
+        <div class="flex flex-col gap-3 pt-4 pb-2">
+          <button type="button" onclick="window.handleLogin()" class="w-full bg-[#0071E3] hover:bg-[#0062c3] text-white font-medium py-3.5 rounded-2xl text-sm transition-all duration-300 active:scale-[0.97] shadow-[0_4px_12px_rgba(0,113,227,0.3)]">
             Continue
           </button>
-          <button type="button" onclick="window.handleRegister()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3.5 rounded-xl text-sm transition-all duration-200 border border-gray-200 active:scale-[0.98]">
+          <button type="button" onclick="window.handleRegister()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3.5 rounded-2xl text-sm transition-all duration-300 border border-black/[0.05] active:scale-[0.97]">
             Create Account
           </button>
         </div>
@@ -84,104 +93,111 @@
     <div id="app-section" class="hidden space-y-8 animate-fade-in">
       
       <!-- Admin Panel -->
-      <section id="admin-panel" class="hidden bg-white apple-shadow border border-black/[0.02] p-6 rounded-3xl">
-        <div class="flex items-center justify-between mb-6">
+      <section id="admin-panel" class="hidden bg-white/80 backdrop-blur-xl apple-shadow border border-white p-6 rounded-[2rem]">
+        <div class="flex items-center justify-between mb-6 px-2">
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-gray-100 rounded-lg">
-              <i data-lucide="shield" class="w-5 h-5 text-gray-700"></i>
+            <div class="p-2.5 bg-gray-100/80 rounded-xl">
+              <i data-lucide="shield-check" class="w-5 h-5 text-gray-700"></i>
             </div>
-            <h3 class="font-semibold text-gray-900 text-lg tracking-tight">Directory</h3>
+            <h3 class="font-semibold text-gray-900 text-lg tracking-tight">System Directory</h3>
           </div>
-          <span id="user-count-badge" class="text-xs bg-gray-100 text-gray-600 font-medium px-3 py-1.5 rounded-full">0 Users</span>
+          <span id="user-count-badge" class="text-xs bg-gray-100/80 text-gray-600 font-semibold px-3 py-1.5 rounded-full">0 Users</span>
         </div>
-        <div class="overflow-x-auto rounded-2xl border border-gray-100">
+        <div class="overflow-x-auto rounded-2xl border border-black/[0.03] bg-white">
           <table class="w-full text-left text-sm whitespace-nowrap">
-            <thead class="bg-gray-50/50 text-gray-500 text-xs">
+            <thead class="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider">
               <tr>
-                <th class="p-4 font-medium">User ID (UID)</th>
-                <th class="p-4 font-medium">Email Address</th>
-                <th class="p-4 font-medium">Role</th>
-                <th class="p-4 font-medium">Joined Date</th>
+                <th class="p-4 font-semibold">User ID (UID)</th>
+                <th class="p-4 font-semibold">Email Address</th>
+                <th class="p-4 font-semibold">Role</th>
+                <th class="p-4 font-semibold">Joined Date</th>
               </tr>
             </thead>
-            <tbody id="admin-users-table-body" class="divide-y divide-gray-100 text-gray-700 bg-white">
-              <tr><td colspan="4" class="p-6 text-center text-gray-400">Loading user database...</td></tr>
+            <tbody id="admin-users-table-body" class="divide-y divide-black/[0.03] text-gray-700">
+              <tr><td colspan="4" class="p-8 text-center text-gray-400 font-medium">Loading database...</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <!-- Left Column: Form & Queue -->
-        <section class="lg:col-span-5 space-y-6">
+        <section class="lg:col-span-5 flex flex-col gap-8 h-full">
           
           <!-- Add Task Form -->
-          <div class="bg-white apple-shadow border border-black/[0.02] p-7 rounded-[2rem] transition-all duration-300">
+          <div class="bg-white/90 backdrop-blur-xl apple-shadow border border-white p-8 rounded-[2.5rem] transition-all duration-300 shrink-0">
             
-            <div class="flex items-center justify-between mb-6">
-              <h2 id="form-title" class="text-lg font-semibold text-gray-900 tracking-tight flex items-center gap-2">
+            <div class="flex items-center justify-between mb-8">
+              <h2 id="form-title" class="text-xl font-semibold text-gray-900 tracking-tight flex items-center gap-2">
                 New Commitment
               </h2>
-              <div class="flex items-center gap-2">
-                <span id="edit-mode-badge" class="hidden text-[10px] bg-orange-50 text-orange-600 font-medium px-2.5 py-1 rounded-full">
-                  Edit Mode
-                </span>
-              </div>
+              <span id="edit-mode-badge" class="hidden text-[10px] bg-orange-100/80 text-orange-700 font-bold uppercase tracking-widest px-2.5 py-1 rounded-md">
+                Editing
+              </span>
             </div>
             
             <form id="task-form" class="space-y-5">
-              <div class="space-y-1.5">
-                <label class="block text-xs font-medium text-gray-500 ml-1">Title</label>
-                <input type="text" id="task-title" placeholder="e.g., Computer Science Lecture" 
-                       class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all" required>
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">Task Title</label>
+                <input type="text" id="task-title" placeholder="e.g., Deep Work Session" 
+                       class="w-full px-5 py-4 bg-gray-50/50 border border-black/[0.04] rounded-2xl focus:ring-0 focus:border-[#0071E3]/40 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,113,227,0.1)] outline-none text-sm text-gray-900 transition-all duration-300" required>
               </div>
               
               <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1.5">
-                  <label class="block text-xs font-medium text-gray-500 ml-1">Category</label>
-                  <select id="task-category" class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all appearance-none cursor-pointer">
-                    <option value="academic">Academic</option>
-                    <option value="work">Work</option>
-                    <option value="study">Study</option>
-                    <option value="personal">Personal</option>
-                  </select>
+                <div class="space-y-2">
+                  <label class="block text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">Category</label>
+                  <div class="relative">
+                    <select id="task-category" class="w-full px-5 py-4 bg-gray-50/50 border border-black/[0.04] rounded-2xl focus:ring-0 focus:border-[#0071E3]/40 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,113,227,0.1)] outline-none text-sm text-gray-900 transition-all duration-300 appearance-none cursor-pointer">
+                      <option value="academic">Academic</option>
+                      <option value="work">Work</option>
+                      <option value="study">Study</option>
+                      <option value="personal">Personal</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                  </div>
                 </div>
-                <div class="space-y-1.5">
-                  <label class="block text-xs font-medium text-gray-500 ml-1">Duration</label>
-                  <select id="task-duration" class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all appearance-none cursor-pointer">
-                    <option value="30">30 min</option>
-                    <option value="60" selected>1 hour</option>
-                    <option value="120">2 hours</option>
-                    <option value="180">3 hours</option>
-                  </select>
+                <div class="space-y-2">
+                  <label class="block text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">Duration</label>
+                  <div class="relative">
+                    <select id="task-duration" class="w-full px-5 py-4 bg-gray-50/50 border border-black/[0.04] rounded-2xl focus:ring-0 focus:border-[#0071E3]/40 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,113,227,0.1)] outline-none text-sm text-gray-900 transition-all duration-300 appearance-none cursor-pointer">
+                      <option value="30">30 min</option>
+                      <option value="60" selected>1 hour</option>
+                      <option value="120">2 hours</option>
+                      <option value="180">3 hours</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                  </div>
                 </div>
               </div>
 
-              <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
+              <div class="p-5 bg-gray-50/50 rounded-2xl border border-black/[0.03]">
                 <div class="flex items-center justify-between">
-                  <label for="is-fixed-time" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                    Fixed Start Time
+                  <label for="is-fixed-time" class="text-sm font-medium text-gray-800 cursor-pointer select-none flex items-center gap-2">
+                    <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i> Fixed Schedule
                   </label>
-                  <input type="checkbox" id="is-fixed-time" onchange="window.toggleFixedTimeInput(this)" class="w-4 h-4 text-[#0071E3] bg-gray-200 border-gray-300 rounded focus:ring-[#0071E3] cursor-pointer">
+                  <input type="checkbox" id="is-fixed-time" onchange="window.toggleFixedTimeInput(this)" class="w-4 h-4 text-[#0071E3] bg-white border-gray-300 rounded focus:ring-[#0071E3] cursor-pointer transition-all">
                 </div>
-                <div id="fixed-time-container" class="hidden pt-3 mt-3 border-t border-gray-200">
+                <div id="fixed-time-container" class="hidden pt-4 mt-4 border-t border-black/[0.04]">
                   <input type="time" id="task-start-time" value="14:00" 
-                         class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-text">
+                         class="w-full px-5 py-3.5 bg-white border border-black/[0.05] rounded-xl text-sm text-gray-900 focus:ring-0 focus:border-[#0071E3]/40 focus:shadow-[0_0_0_4px_rgba(0,113,227,0.1)] outline-none transition-all duration-300 cursor-text shadow-sm">
                 </div>
               </div>
 
-              <div class="space-y-1.5">
-                <label class="block text-xs font-medium text-gray-500 ml-1">Location</label>
-                <input type="text" id="task-location" placeholder="e.g., UTS Campus Block C" 
-                       class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all" required>
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">Location</label>
+                <div class="relative">
+                  <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="task-location" placeholder="e.g., Block C Library" 
+                         class="w-full pl-11 pr-5 py-4 bg-gray-50/50 border border-black/[0.04] rounded-2xl focus:ring-0 focus:border-[#0071E3]/40 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,113,227,0.1)] outline-none text-sm text-gray-900 transition-all duration-300" required>
+                </div>
               </div>
 
-              <div class="flex gap-3 pt-2">
-                <button type="submit" id="submit-btn" class="flex-1 bg-[#1D1D1F] hover:bg-black text-white font-medium py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] text-sm">
-                  <span id="submit-btn-text">Add to Queue</span>
+              <div class="flex gap-3 pt-4">
+                <button type="submit" id="submit-btn" class="flex-1 bg-gradient-to-b from-[#2c2c2e] to-[#1c1c1e] hover:from-[#1c1c1e] hover:to-[#000000] text-white font-medium py-4 rounded-2xl transition-all duration-300 active:scale-[0.97] text-sm shadow-[0_4px_14px_0_rgb(0,0,0,0.15)] flex justify-center items-center gap-2">
+                  <i data-lucide="plus" class="w-4 h-4"></i> <span id="submit-btn-text">Add to Queue</span>
                 </button>
-                <button type="button" id="cancel-edit-btn" onclick="window.cancelEdit()" class="hidden px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm active:scale-[0.98]">
+                <button type="button" id="cancel-edit-btn" onclick="window.cancelEdit()" class="hidden px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-2xl transition-all duration-300 text-sm active:scale-[0.97]">
                   Cancel
                 </button>
               </div>
@@ -189,20 +205,23 @@
           </div>
 
           <!-- Task Queue -->
-          <div class="bg-white apple-shadow border border-black/[0.02] p-7 rounded-[2rem] flex flex-col">
-            <div class="flex items-center justify-between mb-5">
-              <h3 class="font-semibold text-gray-900 tracking-tight">
+          <div class="bg-white/90 backdrop-blur-xl apple-shadow border border-white p-8 rounded-[2.5rem] flex flex-col flex-1 overflow-hidden">
+            <div class="flex items-center justify-between mb-6 px-1">
+              <h3 class="font-semibold text-gray-900 tracking-tight text-lg">
                 Up Next
               </h3>
-              <div class="flex items-center gap-3">
-                <span id="queue-count" class="text-xs font-medium text-gray-500">0 items</span>
-                <button onclick="window.clearAllQueue()" class="text-xs text-red-500 hover:text-red-600 font-medium hidden" id="clear-all-btn">Clear</button>
+              <div class="flex items-center gap-4">
+                <span id="queue-count" class="text-xs font-semibold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-md">0 items</span>
+                <button onclick="window.clearAllQueue()" class="text-xs text-red-500 hover:text-red-600 font-semibold hidden transition-colors" id="clear-all-btn">Clear All</button>
               </div>
             </div>
-            <div id="task-queue" class="space-y-3 text-sm flex-1 overflow-y-auto max-h-[400px] pr-2">
-              <div class="text-center py-10 text-gray-400 flex flex-col items-center justify-center gap-2">
-                <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>
-                <span class="text-xs">Loading...</span>
+            <div id="task-queue" class="space-y-3.5 text-sm flex-1 overflow-y-auto pr-2 pb-2">
+              <!-- Loading / Empty State -->
+              <div class="h-full flex flex-col items-center justify-center text-center opacity-60">
+                <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-3">
+                  <i data-lucide="inbox" class="w-6 h-6 text-gray-400"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-500">Queue is empty</span>
               </div>
             </div>
           </div>
@@ -210,34 +229,38 @@
 
         <!-- Right Column: Itinerary -->
         <section class="lg:col-span-7">
-          <div class="bg-white apple-shadow border border-black/[0.02] p-8 rounded-[2rem] min-h-[700px] flex flex-col h-full">
+          <div class="bg-white/90 backdrop-blur-xl apple-shadow border border-white p-8 rounded-[2.5rem] min-h-[800px] flex flex-col h-full relative overflow-hidden">
             
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-gray-100">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-8 border-b border-black/[0.04]">
               <div>
-                <h2 class="text-xl font-semibold text-gray-900 tracking-tight">
+                <h2 class="text-2xl font-semibold text-gray-900 tracking-tight">
                   Itinerary
                 </h2>
-                <p class="text-xs text-gray-500 mt-1">Smart scheduling based on your queue</p>
+                <p class="text-xs text-gray-500 mt-1.5 font-medium">Auto-generated optimal schedule</p>
               </div>
-              <div class="flex items-center gap-3 bg-gray-50 p-1.5 rounded-2xl">
+              <div class="flex items-center gap-3 bg-gray-50/80 p-1.5 rounded-[1.25rem] border border-black/[0.02]">
                 <div class="flex items-center gap-2 px-3 py-2">
-                  <input type="date" id="schedule-date" class="bg-transparent text-sm text-gray-700 outline-none cursor-pointer font-medium">
+                  <i data-lucide="calendar-days" class="w-4 h-4 text-gray-400"></i>
+                  <input type="date" id="schedule-date" class="bg-transparent text-sm text-gray-700 outline-none cursor-pointer font-semibold">
                 </div>
-                <button onclick="window.runAutoPackEngine()" class="bg-[#0071E3] hover:bg-[#0077ED] text-white text-xs font-medium px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95">
-                  Generate
+                <button onclick="window.runAutoPackEngine()" class="bg-[#0071E3] hover:bg-[#0062c3] text-white text-xs font-medium px-5 py-2.5 rounded-xl transition-all duration-300 active:scale-95 shadow-[0_2px_8px_rgba(0,113,227,0.25)] flex items-center gap-1.5">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Generate
                 </button>
               </div>
             </div>
             
-            <div class="pt-8 flex-1">
-              <div id="timeline-container" class="relative h-full flex flex-col items-center justify-center text-center">
-                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
-                  <i data-lucide="calendar" class="w-6 h-6 text-gray-400"></i>
+            <div class="pt-10 flex-1 relative z-10">
+              <div id="timeline-container" class="h-full flex flex-col items-center justify-center text-center">
+                <div class="w-20 h-20 bg-gray-50/80 rounded-3xl flex items-center justify-center mb-5 border border-white shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                  <i data-lucide="layers" class="w-8 h-8 text-gray-300"></i>
                 </div>
-                <p class="text-gray-900 font-medium text-sm">No schedule generated yet</p>
-                <p class="text-xs mt-1 text-gray-500">Select a date and tap Generate to organize your tasks.</p>
+                <p class="text-gray-900 font-semibold text-base tracking-tight">No schedule generated</p>
+                <p class="text-sm mt-2 text-gray-500 max-w-xs leading-relaxed">Select a date and click Generate to let the engine organize your day seamlessly.</p>
               </div>
             </div>
+
+            <!-- Decorative background element for the right column -->
+            <div class="absolute bottom-[-100px] right-[-100px] w-96 h-96 bg-gray-50 rounded-full blur-3xl opacity-50 pointer-events-none z-0"></div>
 
           </div>
         </section>
@@ -246,51 +269,57 @@
   </main>
 
   <!-- Navigation Options Modal -->
-  <div id="nav-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="window.closeNavModal()"></div>
-    <div class="relative bg-white rounded-3xl apple-shadow p-7 w-full max-w-sm animate-fade-in">
-      <div class="flex items-center justify-between mb-5">
-        <h3 class="font-semibold text-gray-900 text-lg">
+  <div id="nav-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/20 backdrop-blur-md transition-opacity" onclick="window.closeNavModal()"></div>
+    <div class="relative bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white p-8 w-full max-w-sm animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="font-semibold text-gray-900 text-xl tracking-tight">
           Directions
         </h3>
-        <button onclick="window.closeNavModal()" class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+        <button onclick="window.closeNavModal()" class="text-gray-400 hover:text-gray-800 bg-gray-100/50 hover:bg-gray-100 p-2.5 rounded-full transition-all duration-200">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
-      <p id="nav-modal-location" class="text-sm text-gray-600 mb-6 flex items-start gap-2"></p>
+      <div id="nav-modal-location" class="text-sm text-gray-600 mb-8 flex items-start gap-3 p-4 bg-gray-50 rounded-2xl"></div>
       
-      <div class="space-y-2">
-        <a id="nav-apple" href="#" target="_blank" class="flex items-center gap-4 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-          <div class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0">
-            <i data-lucide="compass" class="w-5 h-5 text-gray-700"></i>
+      <div class="space-y-3">
+        <a id="nav-apple" href="#" target="_blank" class="flex items-center gap-4 p-4 bg-white border border-black/[0.04] rounded-2xl hover:bg-gray-50 hover:shadow-sm transition-all duration-300 group">
+          <div class="w-12 h-12 bg-white shadow-sm border border-black/[0.02] rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+            <i data-lucide="compass" class="w-6 h-6 text-[#0071E3]"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-medium text-gray-900 text-sm">Apple Maps</p>
+            <p class="font-semibold text-gray-900 text-sm">Apple Maps</p>
           </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors"></i>
         </a>
-        <a id="nav-google" href="#" target="_blank" class="flex items-center gap-4 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-          <div class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0">
-            <i data-lucide="map" class="w-5 h-5 text-gray-700"></i>
+        <a id="nav-google" href="#" target="_blank" class="flex items-center gap-4 p-4 bg-white border border-black/[0.04] rounded-2xl hover:bg-gray-50 hover:shadow-sm transition-all duration-300 group">
+          <div class="w-12 h-12 bg-white shadow-sm border border-black/[0.02] rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+            <i data-lucide="map" class="w-6 h-6 text-[#34A853]"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-medium text-gray-900 text-sm">Google Maps</p>
+            <p class="font-semibold text-gray-900 text-sm">Google Maps</p>
           </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors"></i>
         </a>
-        <a id="nav-waze" href="#" target="_blank" class="flex items-center gap-4 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-          <div class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0">
-            <i data-lucide="navigation" class="w-5 h-5 text-gray-700"></i>
+        <a id="nav-waze" href="#" target="_blank" class="flex items-center gap-4 p-4 bg-white border border-black/[0.04] rounded-2xl hover:bg-gray-50 hover:shadow-sm transition-all duration-300 group">
+          <div class="w-12 h-12 bg-white shadow-sm border border-black/[0.02] rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+            <i data-lucide="navigation" class="w-6 h-6 text-[#15c5ce]"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-medium text-gray-900 text-sm">Waze</p>
+            <p class="font-semibold text-gray-900 text-sm">Waze</p>
           </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors"></i>
         </a>
       </div>
     </div>
   </div>
 
   <style>
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-    .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(10px) scale(0.98); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
+    .animate-fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
 
   <script type="module">
@@ -328,7 +357,13 @@
     });
 
     window.toggleFixedTimeInput = function(checkbox) {
-      document.getElementById('fixed-time-container').classList.toggle('hidden', !checkbox.checked);
+      const container = document.getElementById('fixed-time-container');
+      if (checkbox.checked) {
+        container.classList.remove('hidden');
+        // Slight delay for smooth render if we added transition classes
+      } else {
+        container.classList.add('hidden');
+      }
     };
 
     window.handleRegister = async function() {
@@ -388,11 +423,11 @@
           
           if (userRole === "admin") {
             adminPanel.classList.remove('hidden');
-            roleBadge.className = "text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 text-purple-600 font-semibold";
+            roleBadge.className = "text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-700 font-bold";
             fetchAllUsersDirectory();
           } else {
             adminPanel.classList.add('hidden');
-            roleBadge.className = "text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 font-semibold";
+            roleBadge.className = "text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-700 font-bold";
           }
         } catch (err) {
           adminPanel.classList.add('hidden');
@@ -419,7 +454,7 @@
         const tbody = document.getElementById('admin-users-table-body');
         const countBadge = document.getElementById('user-count-badge');
         if (!usersData) {
-          tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-400">No users found.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400 font-medium">No users found.</td></tr>`;
           return;
         }
         const userKeys = Object.keys(usersData);
@@ -428,11 +463,11 @@
           const u = usersData[uid];
           const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A';
           return `
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="p-4 font-mono text-gray-500 text-xs">${uid.substring(0, 8)}...</td>
+            <tr class="hover:bg-gray-50/50 transition-colors">
+              <td class="p-4 font-mono text-gray-400 text-xs">${uid.substring(0, 8)}...</td>
               <td class="p-4 font-medium text-gray-900">${u.email}</td>
-              <td class="p-4"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 text-[10px] uppercase font-semibold">${u.role || 'student'}</span></td>
-              <td class="p-4 text-gray-500 text-xs">${dateStr}</td>
+              <td class="p-4"><span class="px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 text-[10px] uppercase font-bold tracking-wider">${u.role || 'student'}</span></td>
+              <td class="p-4 text-gray-400 text-xs font-medium">${dateStr}</td>
             </tr>
           `;
         }).join('');
@@ -490,11 +525,14 @@
 
       document.getElementById('form-title').innerText = `Edit Commitment`;
       document.getElementById('submit-btn-text').innerText = 'Save Changes';
-      document.getElementById('submit-btn').className = "flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] text-sm";
+      document.getElementById('submit-btn').className = "flex-1 bg-gradient-to-b from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-4 rounded-2xl transition-all duration-300 active:scale-[0.97] text-sm shadow-[0_4px_14px_rgba(249,115,22,0.3)] flex justify-center items-center gap-2";
+      document.getElementById('submit-btn').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> <span id="submit-btn-text">Save Changes</span>`;
+      
       document.getElementById('cancel-edit-btn').classList.remove('hidden');
       document.getElementById('edit-mode-badge').classList.remove('hidden');
       
       document.getElementById('task-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      lucide.createIcons();
     };
 
     window.cancelEdit = function() {
@@ -502,11 +540,14 @@
       document.getElementById('task-form').reset();
       document.getElementById('fixed-time-container').classList.add('hidden');
       document.getElementById('is-fixed-time').checked = false;
+      
       document.getElementById('form-title').innerText = `New Commitment`;
-      document.getElementById('submit-btn-text').innerText = 'Add to Queue';
-      document.getElementById('submit-btn').className = "flex-1 bg-[#1D1D1F] hover:bg-black text-white font-medium py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] text-sm";
+      document.getElementById('submit-btn').className = "flex-1 bg-gradient-to-b from-[#2c2c2e] to-[#1c1c1e] hover:from-[#1c1c1e] hover:to-[#000000] text-white font-medium py-4 rounded-2xl transition-all duration-300 active:scale-[0.97] text-sm shadow-[0_4px_14px_0_rgb(0,0,0,0.15)] flex justify-center items-center gap-2";
+      document.getElementById('submit-btn').innerHTML = `<i data-lucide="plus" class="w-4 h-4"></i> <span id="submit-btn-text">Add to Queue</span>`;
+      
       document.getElementById('cancel-edit-btn').classList.add('hidden');
       document.getElementById('edit-mode-badge').classList.add('hidden');
+      lucide.createIcons();
     };
 
     function listenToUserTasks(uid) {
@@ -546,35 +587,39 @@
       if (currentTaskQueue.length === 0) {
         clearBtn.classList.add('hidden');
         queueEl.innerHTML = `
-          <div class="text-center py-10 text-gray-400">
-            <p class="text-sm">Your queue is empty</p>
+          <div class="h-full flex flex-col items-center justify-center text-center opacity-60">
+            <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-3">
+              <i data-lucide="inbox" class="w-6 h-6 text-gray-400"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-500">Queue is empty</span>
           </div>`;
+        lucide.createIcons();
         return;
       }
       
       clearBtn.classList.remove('hidden');
       queueEl.innerHTML = currentTaskQueue.map(t => {
         const isEditing = t.id === editingTaskId;
-        const bgClass = isEditing ? 'bg-orange-50 border-orange-200' : 'bg-gray-50 border-gray-100 hover:border-gray-200';
+        const bgClass = isEditing ? 'bg-orange-50/50 border-orange-200' : 'bg-white border-black/[0.04] hover:border-black/[0.08]';
         
         return `
-        <div class="${bgClass} p-4 rounded-2xl border flex items-center justify-between transition-colors group">
+        <div class="${bgClass} p-4 rounded-[1.25rem] border flex items-center justify-between transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-0.5 group">
           <div class="flex-1 min-w-0 pr-4">
-            <p class="font-medium text-gray-900 truncate flex items-center gap-2">
+            <p class="font-semibold text-gray-900 truncate flex items-center gap-2 text-[15px]">
               ${t.title}
-              ${t.isFixed ? `<span class="text-[10px] text-gray-500 font-mono bg-white px-1.5 py-0.5 rounded shadow-sm border border-gray-200 flex-shrink-0">${t.startTime}</span>` : ''}
+              ${t.isFixed ? `<span class="text-[10px] text-gray-600 font-mono bg-gray-100 px-2 py-0.5 rounded-md shadow-sm border border-black/[0.05] flex-shrink-0 flex items-center gap-1"><i data-lucide="lock" class="w-2.5 h-2.5"></i>${t.startTime}</span>` : ''}
             </p>
-            <div class="flex items-center gap-2 text-gray-500 text-[11px] mt-1.5 truncate">
-              <span>${t.location}</span>
+            <div class="flex items-center gap-3 text-gray-400 text-[12px] mt-1.5 truncate font-medium">
+              <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${t.location}</span>
               <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-              <span>${t.duration}m</span>
+              <span class="flex items-center gap-1"><i data-lucide="clock-3" class="w-3 h-3"></i> ${t.duration}m</span>
             </div>
           </div>
-          <div class="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button type="button" onclick="window.editTask('${t.id}')" class="text-gray-400 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-200 transition-colors" title="Edit">
+          <div class="flex items-center gap-1.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button type="button" onclick="window.editTask('${t.id}')" class="text-gray-400 hover:text-[#0071E3] p-2 rounded-xl hover:bg-blue-50 transition-all duration-200" title="Edit">
               <i data-lucide="pencil" class="w-4 h-4"></i>
             </button>
-            <button type="button" onclick="window.deleteTask('${t.id}')" class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="Delete">
+            <button type="button" onclick="window.deleteTask('${t.id}')" class="text-gray-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-50 transition-all duration-200" title="Delete">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
@@ -585,7 +630,15 @@
 
     window.openNavModal = function(location) {
       const encoded = encodeURIComponent(location);
-      document.getElementById('nav-modal-location').innerHTML = `<i data-lucide="map-pin" class="w-4 h-4 text-gray-400 mt-0.5"></i> <span>${location}</span>`;
+      document.getElementById('nav-modal-location').innerHTML = `
+        <div class="bg-blue-100/50 p-2 rounded-xl flex-shrink-0">
+          <i data-lucide="map-pin" class="w-5 h-5 text-[#0071E3]"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-bold mb-0.5">Destination</p>
+          <p class="text-sm font-medium text-gray-900">${location}</p>
+        </div>`;
+      
       document.getElementById('nav-waze').href = `https://waze.com/ul?q=${encoded}&navigate=yes`;
       document.getElementById('nav-google').href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
       document.getElementById('nav-apple').href = `http://maps.apple.com/?q=${encoded}`;
@@ -606,22 +659,25 @@
       }
       container.innerHTML = `
         <div class="flex flex-col items-center justify-center h-full">
-          <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-[#0071E3] mb-3"></i>
-          <p class="text-sm text-gray-500 font-medium">Processing timeline...</p>
+          <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4">
+             <i data-lucide="loader-circle" class="w-8 h-8 animate-spin text-[#0071E3]"></i>
+          </div>
+          <p class="text-sm text-gray-900 font-semibold">Processing Timeline...</p>
+          <p class="text-xs text-gray-500 mt-1">Applying smart constraints</p>
         </div>`;
       lucide.createIcons();
       
       setTimeout(() => {
         container.innerHTML = `
           <div class="flex flex-col items-center justify-center h-full">
-             <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mb-3">
-               <i data-lucide="check" class="w-6 h-6 text-green-600"></i>
+             <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mb-4 border border-green-100 shadow-sm">
+               <i data-lucide="check-circle-2" class="w-8 h-8 text-green-500"></i>
              </div>
-             <p class="text-gray-900 font-medium text-sm">Schedule Generated</p>
-             <p class="text-xs mt-1 text-gray-500">Timeline view will render here.</p>
+             <p class="text-gray-900 font-semibold text-base tracking-tight">Schedule Generated</p>
+             <p class="text-sm mt-1 text-gray-500">Your optimized timeline is ready.</p>
           </div>`;
         lucide.createIcons();
-      }, 1200);
+      }, 1500);
     };
 
   </script>
