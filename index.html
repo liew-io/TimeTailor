@@ -6,41 +6,44 @@
   <title>TimeTailor: Smart Task-Time Packing & Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    /* Custom scrollbar for better appearance */
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    }
+    /* Clean light mode scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    
+    /* Apple-like soft shadow for cards */
+    .apple-shadow {
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 antialiased min-h-screen selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
+<body class="bg-[#F5F5F7] text-[#1D1D1F] antialiased min-h-screen selection:bg-blue-200 selection:text-blue-900 relative overflow-x-hidden">
   
-  <!-- Ambient Background Glows -->
-  <div class="fixed top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none transition-all duration-1000"></div>
-  <div class="fixed bottom-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none transition-all duration-1000"></div>
-
   <!-- Header -->
-  <header class="bg-slate-900/60 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50 shadow-sm">
+  <header class="bg-white/70 backdrop-blur-xl border-b border-black/5 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3 group cursor-pointer">
-        <div class="bg-gradient-to-br from-indigo-500 to-violet-600 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
+        <div class="bg-[#0071E3] text-white p-2 rounded-xl group-hover:scale-105 transition-transform duration-300">
           <i data-lucide="clock" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+          <h1 class="text-lg font-bold tracking-tight text-gray-900 flex items-center gap-2">
             TimeTailor
-            <span id="role-badge" class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold shadow-sm hidden">USER</span>
+            <span id="role-badge" class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 font-semibold hidden">USER</span>
           </h1>
-          <p class="text-[11px] text-slate-400 font-medium group-hover:text-slate-300 transition-colors">Smart Task-Time Packing System (FYP Project)</p>
+          <p class="text-[11px] text-gray-500 font-medium">Smart Task-Time Packing System</p>
         </div>
       </div>
       <div id="auth-status-bar" class="flex items-center gap-4 text-sm">
-        <span id="user-display" class="text-slate-400 font-medium text-xs bg-slate-800/50 px-3 py-1.5 rounded-full border border-white/5">Not logged in</span>
-        <button id="logout-btn" onclick="window.handleLogout()" class="hidden flex items-center gap-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 px-4 py-1.5 rounded-lg hover:bg-rose-500 hover:text-white transition-all duration-300 text-xs font-semibold shadow-sm">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+        <span id="user-display" class="text-gray-500 font-medium text-xs bg-gray-100/80 px-3 py-1.5 rounded-full">Not logged in</span>
+        <button id="logout-btn" onclick="window.handleLogout()" class="hidden flex items-center gap-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors duration-200 text-xs font-medium">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
         </button>
       </div>
     </div>
@@ -49,29 +52,29 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
     
     <!-- Auth Section -->
-    <section id="auth-section" class="max-w-md mx-auto bg-slate-800/60 backdrop-blur-2xl p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6 mt-10 hover:border-white/20 transition-colors duration-500">
-      <div class="text-center space-y-2">
-        <div class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-indigo-500/10 mb-2">
-          <i data-lucide="user-circle" class="w-6 h-6 text-indigo-400"></i>
+    <section id="auth-section" class="max-w-md mx-auto bg-white p-8 rounded-[2rem] apple-shadow space-y-8 mt-12 border border-black/[0.02]">
+      <div class="text-center space-y-2 pt-2">
+        <div class="inline-flex justify-center items-center w-14 h-14 rounded-full bg-blue-50 mb-3">
+          <i data-lucide="user" class="w-6 h-6 text-[#0071E3]"></i>
         </div>
-        <h2 class="text-2xl font-bold text-white tracking-tight">Welcome to TimeTailor</h2>
-        <p class="text-sm text-slate-400">Sign in or create an account to sync your schedule</p>
+        <h2 class="text-2xl font-semibold text-gray-900 tracking-tight">Sign In</h2>
+        <p class="text-sm text-gray-500">Access your TimeTailor workspace</p>
       </div>
       <form id="auth-form" class="space-y-5" onsubmit="return false;">
         <div class="space-y-1.5">
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">Email Address</label>
-          <input type="email" id="auth-email" placeholder="student@example.com" class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none text-sm text-white transition-all duration-300" required>
+          <label class="block text-xs font-medium text-gray-500 ml-1">Email</label>
+          <input type="email" id="auth-email" placeholder="name@example.com" class="w-full px-4 py-3.5 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all duration-200" required>
         </div>
         <div class="space-y-1.5">
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">Password (Min 6 chars)</label>
-          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none text-sm text-white transition-all duration-300" required>
+          <label class="block text-xs font-medium text-gray-500 ml-1">Password</label>
+          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3.5 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all duration-200" required>
         </div>
-        <div class="grid grid-cols-2 gap-4 pt-4">
-          <button type="button" onclick="window.handleLogin()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] active:scale-95 flex items-center justify-center gap-2">
-            Log In <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        <div class="flex flex-col gap-3 pt-4">
+          <button type="button" onclick="window.handleLogin()" class="w-full bg-[#0071E3] hover:bg-[#0077ED] text-white font-medium py-3.5 rounded-xl text-sm transition-all duration-200 active:scale-[0.98]">
+            Continue
           </button>
-          <button type="button" onclick="window.handleRegister()" class="bg-slate-700/50 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl text-sm transition-all duration-300 border border-slate-600/50 hover:border-slate-500 active:scale-95">
-            Register
+          <button type="button" onclick="window.handleRegister()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3.5 rounded-xl text-sm transition-all duration-200 border border-gray-200 active:scale-[0.98]">
+            Create Account
           </button>
         </div>
       </form>
@@ -81,78 +84,73 @@
     <div id="app-section" class="hidden space-y-8 animate-fade-in">
       
       <!-- Admin Panel -->
-      <section id="admin-panel" class="hidden bg-gradient-to-r from-indigo-950/40 to-slate-900/40 border border-indigo-500/20 p-6 rounded-3xl shadow-xl backdrop-blur-xl">
+      <section id="admin-panel" class="hidden bg-white apple-shadow border border-black/[0.02] p-6 rounded-3xl">
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-indigo-500/10 rounded-lg">
-              <i data-lucide="shield-check" class="w-5 h-5 text-indigo-400"></i>
+            <div class="p-2 bg-gray-100 rounded-lg">
+              <i data-lucide="shield" class="w-5 h-5 text-gray-700"></i>
             </div>
-            <h3 class="font-bold text-white text-lg">Registered Users Directory</h3>
+            <h3 class="font-semibold text-gray-900 text-lg tracking-tight">Directory</h3>
           </div>
-          <span id="user-count-badge" class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold px-3 py-1.5 rounded-lg shadow-inner">0 Total Users</span>
+          <span id="user-count-badge" class="text-xs bg-gray-100 text-gray-600 font-medium px-3 py-1.5 rounded-full">0 Users</span>
         </div>
-        <div class="overflow-x-auto rounded-xl border border-white/5">
+        <div class="overflow-x-auto rounded-2xl border border-gray-100">
           <table class="w-full text-left text-sm whitespace-nowrap">
-            <thead class="bg-slate-900/60 text-slate-400 uppercase tracking-wider text-xs">
+            <thead class="bg-gray-50/50 text-gray-500 text-xs">
               <tr>
-                <th class="p-4 font-semibold">User ID (UID)</th>
-                <th class="p-4 font-semibold">Email Address</th>
-                <th class="p-4 font-semibold">Role</th>
-                <th class="p-4 font-semibold">Joined Date</th>
+                <th class="p-4 font-medium">User ID (UID)</th>
+                <th class="p-4 font-medium">Email Address</th>
+                <th class="p-4 font-medium">Role</th>
+                <th class="p-4 font-medium">Joined Date</th>
               </tr>
             </thead>
-            <tbody id="admin-users-table-body" class="divide-y divide-white/5 text-slate-300 bg-slate-800/30">
-              <tr><td colspan="4" class="p-6 text-center text-slate-500">Loading user database...</td></tr>
+            <tbody id="admin-users-table-body" class="divide-y divide-gray-100 text-gray-700 bg-white">
+              <tr><td colspan="4" class="p-6 text-center text-gray-400">Loading user database...</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         <!-- Left Column: Form & Queue -->
-        <section class="lg:col-span-5 space-y-8">
+        <section class="lg:col-span-5 space-y-6">
           
           <!-- Add Task Form -->
-          <div class="bg-slate-800/60 backdrop-blur-xl p-7 rounded-3xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-full blur-2xl pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity"></div>
+          <div class="bg-white apple-shadow border border-black/[0.02] p-7 rounded-[2rem] transition-all duration-300">
             
-            <div class="flex items-center justify-between mb-6 relative z-10">
-              <h2 id="form-title" class="text-lg font-bold text-white flex items-center gap-2">
-                <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i>
-                Add Commitment
+            <div class="flex items-center justify-between mb-6">
+              <h2 id="form-title" class="text-lg font-semibold text-gray-900 tracking-tight flex items-center gap-2">
+                New Commitment
               </h2>
               <div class="flex items-center gap-2">
-                <span id="edit-mode-badge" class="hidden text-[10px] bg-amber-500/10 text-amber-300 font-bold px-2.5 py-1 rounded-md border border-amber-500/20 flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Edit Mode
-                </span>
-                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 font-bold px-2.5 py-1 rounded-md border border-emerald-500/20 flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Cloud Synced
+                <span id="edit-mode-badge" class="hidden text-[10px] bg-orange-50 text-orange-600 font-medium px-2.5 py-1 rounded-full">
+                  Edit Mode
                 </span>
               </div>
             </div>
             
-            <form id="task-form" class="space-y-5 relative z-10">
+            <form id="task-form" class="space-y-5">
               <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">Task / Shift Name</label>
-                <input type="text" id="task-title" placeholder="e.g., Computer Science Lecture / Cafe Shift" 
-                       class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none text-sm text-slate-100 placeholder-slate-500 transition-all duration-300" required>
+                <label class="block text-xs font-medium text-gray-500 ml-1">Title</label>
+                <input type="text" id="task-title" placeholder="e.g., Computer Science Lecture" 
+                       class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all" required>
               </div>
               
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
-                  <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">Type</label>
-                  <select id="task-category" class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none text-sm text-slate-200 transition-all duration-300 appearance-none cursor-pointer">
-                    <option value="academic">Lecture / Lab</option>
-                    <option value="work">Work Shift</option>
-                    <option value="study">Group Study</option>
-                    <option value="personal">Meal / Break</option>
+                  <label class="block text-xs font-medium text-gray-500 ml-1">Category</label>
+                  <select id="task-category" class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all appearance-none cursor-pointer">
+                    <option value="academic">Academic</option>
+                    <option value="work">Work</option>
+                    <option value="study">Study</option>
+                    <option value="personal">Personal</option>
                   </select>
                 </div>
                 <div class="space-y-1.5">
-                  <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">Est. Duration</label>
-                  <select id="task-duration" class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none text-sm text-slate-200 transition-all duration-300 appearance-none cursor-pointer">
-                    <option value="30">30 mins</option>
+                  <label class="block text-xs font-medium text-gray-500 ml-1">Duration</label>
+                  <select id="task-duration" class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all appearance-none cursor-pointer">
+                    <option value="30">30 min</option>
                     <option value="60" selected>1 hour</option>
                     <option value="120">2 hours</option>
                     <option value="180">3 hours</option>
@@ -160,36 +158,30 @@
                 </div>
               </div>
 
-              <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-3 hover:border-white/10 transition-colors">
+              <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
                 <div class="flex items-center justify-between">
-                  <label for="is-fixed-time" class="text-xs font-bold text-indigo-300 flex items-center gap-2 cursor-pointer select-none">
-                    <div class="p-1.5 bg-indigo-500/10 rounded-md"><i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-400"></i></div>
-                    Specific / Fixed Start Time?
+                  <label for="is-fixed-time" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                    Fixed Start Time
                   </label>
-                  <input type="checkbox" id="is-fixed-time" onchange="window.toggleFixedTimeInput(this)" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
+                  <input type="checkbox" id="is-fixed-time" onchange="window.toggleFixedTimeInput(this)" class="w-4 h-4 text-[#0071E3] bg-gray-200 border-gray-300 rounded focus:ring-[#0071E3] cursor-pointer">
                 </div>
-                <div id="fixed-time-container" class="hidden pt-2 border-t border-white/5 mt-2">
-                  <label class="block text-[11px] font-semibold text-slate-400 mb-2 pl-1">Set Start Time (e.g., 14:00 for 2:00 PM Lecture)</label>
+                <div id="fixed-time-container" class="hidden pt-3 mt-3 border-t border-gray-200">
                   <input type="time" id="task-start-time" value="14:00" 
-                         class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/50 rounded-xl text-sm text-indigo-200 font-mono focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all duration-300 cursor-text">
+                         class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-text">
                 </div>
               </div>
 
               <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">Venue / Destination</label>
-                <div class="relative">
-                  <i data-lucide="map-pin" class="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                  <input type="text" id="task-location" placeholder="e.g., UTS Campus Block C" 
-                         class="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none text-sm text-slate-100 placeholder-slate-500 transition-all duration-300" required>
-                </div>
+                <label class="block text-xs font-medium text-gray-500 ml-1">Location</label>
+                <input type="text" id="task-location" placeholder="e.g., UTS Campus Block C" 
+                       class="w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none text-sm text-gray-900 transition-all" required>
               </div>
 
               <div class="flex gap-3 pt-2">
-                <button type="submit" id="submit-btn" class="flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3.5 rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] transition-all duration-300 transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
-                  <i data-lucide="cloud-upload" class="w-4 h-4"></i>
-                  <span id="submit-btn-text">Save Task to Profile</span>
+                <button type="submit" id="submit-btn" class="flex-1 bg-[#1D1D1F] hover:bg-black text-white font-medium py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] text-sm">
+                  <span id="submit-btn-text">Add to Queue</span>
                 </button>
-                <button type="button" id="cancel-edit-btn" onclick="window.cancelEdit()" class="hidden px-5 bg-slate-700/50 hover:bg-slate-700 text-white font-bold rounded-xl transition-all duration-300 border border-slate-600/50 hover:border-slate-500 text-sm active:scale-[0.98]">
+                <button type="button" id="cancel-edit-btn" onclick="window.cancelEdit()" class="hidden px-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm active:scale-[0.98]">
                   Cancel
                 </button>
               </div>
@@ -197,58 +189,53 @@
           </div>
 
           <!-- Task Queue -->
-          <div class="bg-slate-800/60 backdrop-blur-xl p-7 rounded-3xl border border-white/10 shadow-2xl flex flex-col">
+          <div class="bg-white apple-shadow border border-black/[0.02] p-7 rounded-[2rem] flex flex-col">
             <div class="flex items-center justify-between mb-5">
-              <h3 class="font-bold text-white flex items-center gap-2">
-                <i data-lucide="list-todo" class="w-5 h-5 text-indigo-400"></i>
-                Your Cloud Queue
+              <h3 class="font-semibold text-gray-900 tracking-tight">
+                Up Next
               </h3>
               <div class="flex items-center gap-3">
-                <span id="queue-count" class="text-[11px] font-bold bg-slate-900/80 text-slate-300 px-3 py-1 rounded-full border border-white/5 shadow-inner">0 tasks</span>
-                <button onclick="window.clearAllQueue()" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-2 py-1 rounded-md transition-all duration-200 font-medium hidden" id="clear-all-btn">Clear All</button>
+                <span id="queue-count" class="text-xs font-medium text-gray-500">0 items</span>
+                <button onclick="window.clearAllQueue()" class="text-xs text-red-500 hover:text-red-600 font-medium hidden" id="clear-all-btn">Clear</button>
               </div>
             </div>
             <div id="task-queue" class="space-y-3 text-sm flex-1 overflow-y-auto max-h-[400px] pr-2">
-              <div class="text-center py-10 text-slate-500 border-2 border-dashed border-slate-700/50 rounded-2xl flex flex-col items-center justify-center gap-2">
-                <i data-lucide="loader-2" class="w-6 h-6 animate-spin opacity-50"></i>
-                <span class="text-xs">Loading tasks...</span>
+              <div class="text-center py-10 text-gray-400 flex flex-col items-center justify-center gap-2">
+                <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>
+                <span class="text-xs">Loading...</span>
               </div>
             </div>
           </div>
         </section>
 
         <!-- Right Column: Itinerary -->
-        <section class="lg:col-span-7 space-y-8">
-          <div class="bg-slate-800/60 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl min-h-[600px] flex flex-col">
+        <section class="lg:col-span-7">
+          <div class="bg-white apple-shadow border border-black/[0.02] p-8 rounded-[2rem] min-h-[700px] flex flex-col h-full">
             
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-white/10">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-gray-100">
               <div>
-                <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                  <i data-lucide="map" class="w-5 h-5 text-indigo-400"></i>
-                  Spatial-Temporal Itinerary
+                <h2 class="text-xl font-semibold text-gray-900 tracking-tight">
+                  Itinerary
                 </h2>
-                <p class="text-xs text-slate-400 mt-1.5">Auto-pack Cloud Tasks into realistic schedules with Map links</p>
+                <p class="text-xs text-gray-500 mt-1">Smart scheduling based on your queue</p>
               </div>
-              <div class="flex items-center gap-3 bg-slate-900/40 p-1.5 rounded-2xl border border-white/5">
-                <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 transition-colors cursor-pointer border border-white/5">
-                  <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i>
-                  <input type="date" id="schedule-date" class="bg-transparent text-xs text-indigo-100 outline-none cursor-pointer font-semibold">
+              <div class="flex items-center gap-3 bg-gray-50 p-1.5 rounded-2xl">
+                <div class="flex items-center gap-2 px-3 py-2">
+                  <input type="date" id="schedule-date" class="bg-transparent text-sm text-gray-700 outline-none cursor-pointer font-medium">
                 </div>
-                <button onclick="window.runAutoPackEngine()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.3)] flex items-center gap-2 active:scale-95 group">
-                  <i data-lucide="play" class="w-4 h-4 group-hover:text-indigo-200 transition-colors"></i> Run Auto-Pack
+                <button onclick="window.runAutoPackEngine()" class="bg-[#0071E3] hover:bg-[#0077ED] text-white text-xs font-medium px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95">
+                  Generate
                 </button>
               </div>
             </div>
             
             <div class="pt-8 flex-1">
-              <div id="timeline-container" class="space-y-6 relative before:absolute before:inset-0 before:left-[19px] before:w-[2px] before:bg-gradient-to-b before:from-indigo-500/50 before:to-slate-700/50 h-full">
-                <div class="pl-12 py-20 text-center text-slate-400 text-sm flex flex-col items-center justify-center h-full">
-                  <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-white/5 shadow-inner">
-                    <i data-lucide="calendar-clock" class="w-8 h-8 text-slate-500"></i>
-                  </div>
-                  <p>Select a date and click <strong class="text-indigo-300 font-semibold bg-indigo-500/10 px-2 py-0.5 rounded ml-1">Run Auto-Pack</strong></p>
-                  <p class="text-xs mt-2 text-slate-500">to process your tasks into a smart, conflict-free timeline.</p>
+              <div id="timeline-container" class="relative h-full flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
+                  <i data-lucide="calendar" class="w-6 h-6 text-gray-400"></i>
                 </div>
+                <p class="text-gray-900 font-medium text-sm">No schedule generated yet</p>
+                <p class="text-xs mt-1 text-gray-500">Select a date and tap Generate to organize your tasks.</p>
               </div>
             </div>
 
@@ -260,80 +247,50 @@
 
   <!-- Navigation Options Modal -->
   <div id="nav-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity" onclick="window.closeNavModal()"></div>
-    <div class="relative bg-slate-800/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-7 w-full max-w-sm animate-fade-in transform transition-all">
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="window.closeNavModal()"></div>
+    <div class="relative bg-white rounded-3xl apple-shadow p-7 w-full max-w-sm animate-fade-in">
       <div class="flex items-center justify-between mb-5">
-        <h3 class="font-bold text-white text-lg flex items-center gap-2">
-          <i data-lucide="navigation" class="w-5 h-5 text-indigo-400"></i>
-          Open Navigation
+        <h3 class="font-semibold text-gray-900 text-lg">
+          Directions
         </h3>
-        <button onclick="window.closeNavModal()" class="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-700/80 transition-colors">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button onclick="window.closeNavModal()" class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
-      <p id="nav-modal-location" class="text-xs text-slate-300 mb-5 p-3.5 bg-slate-900/80 rounded-xl border border-white/5 font-medium shadow-inner flex items-center gap-2"></p>
+      <p id="nav-modal-location" class="text-sm text-gray-600 mb-6 flex items-start gap-2"></p>
       
-      <div class="space-y-3">
-        <!-- Waze -->
-        <a id="nav-waze" href="#" target="_blank" class="flex items-center gap-4 p-3 bg-slate-800 border border-slate-700/80 rounded-2xl hover:bg-sky-500/10 hover:border-sky-500/30 transition-all duration-300 group hover:-translate-y-0.5">
-          <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-sky-500/20 transition-colors border border-white/5">
-            <svg class="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-            </svg>
+      <div class="space-y-2">
+        <a id="nav-apple" href="#" target="_blank" class="flex items-center gap-4 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
+          <div class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="compass" class="w-5 h-5 text-gray-700"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-bold text-white text-sm">Waze</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Community traffic & navigation</p>
+            <p class="font-medium text-gray-900 text-sm">Apple Maps</p>
           </div>
-          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 group-hover:text-sky-400 transition-colors mr-1"></i>
         </a>
-        <!-- Google Maps -->
-        <a id="nav-google" href="#" target="_blank" class="flex items-center gap-4 p-3 bg-slate-800 border border-slate-700/80 rounded-2xl hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-0.5">
-          <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/20 transition-colors border border-white/5">
-            <svg class="w-6 h-6 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
+        <a id="nav-google" href="#" target="_blank" class="flex items-center gap-4 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
+          <div class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="map" class="w-5 h-5 text-gray-700"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-bold text-white text-sm">Google Maps</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Most widely supported</p>
+            <p class="font-medium text-gray-900 text-sm">Google Maps</p>
           </div>
-          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors mr-1"></i>
         </a>
-        <!-- Apple Maps -->
-        <a id="nav-apple" href="#" target="_blank" class="flex items-center gap-4 p-3 bg-slate-800 border border-slate-700/80 rounded-2xl hover:bg-slate-500/20 hover:border-slate-400/30 transition-all duration-300 group hover:-translate-y-0.5">
-          <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-slate-500/30 transition-colors border border-white/5">
-            <svg class="w-6 h-6 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-            </svg>
+        <a id="nav-waze" href="#" target="_blank" class="flex items-center gap-4 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
+          <div class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="navigation" class="w-5 h-5 text-gray-700"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-bold text-white text-sm">Apple Maps</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Best for iPhone users</p>
+            <p class="font-medium text-gray-900 text-sm">Waze</p>
           </div>
-          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors mr-1"></i>
-        </a>
-        <!-- Default Geo Link -->
-        <a id="nav-geo" href="#" class="flex items-center gap-4 p-3 bg-slate-800 border border-slate-700/80 rounded-2xl hover:bg-violet-500/10 hover:border-violet-500/30 transition-all duration-300 group hover:-translate-y-0.5">
-          <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/20 transition-colors border border-white/5">
-            <i data-lucide="map-pin" class="w-5 h-5 text-violet-400"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-white text-sm">System Default App</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Let OS choose navigation</p>
-          </div>
-          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 group-hover:text-violet-400 transition-colors mr-1"></i>
         </a>
       </div>
-      <p class="text-[10px] text-slate-500 mt-5 text-center px-4">
-        Tip: On mobile devices, ensure the specific app is installed for direct routing.
-      </p>
     </div>
   </div>
 
   <style>
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
   </style>
 
   <script type="module">
@@ -387,7 +344,6 @@
           role: "student",
           createdAt: Date.now()
         });
-        alert("Registration Successful!");
       } catch (err) {
         alert("Register Failed: " + err.message);
       }
@@ -421,22 +377,22 @@
         authSection.classList.add('hidden');
         appSection.classList.remove('hidden');
         logoutBtn.classList.remove('hidden');
-        userDisplay.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5 inline mr-1"></i> ${user.email}`;
+        userDisplay.innerText = user.email;
         roleBadge.classList.remove('hidden');
         
         try {
           const userSnap = await get(ref(db, `users/${user.uid}`));
           const userData = userSnap.val();
           const userRole = userData?.role || "student";
-          roleBadge.innerText = userRole.toUpperCase();
+          roleBadge.innerText = userRole;
           
           if (userRole === "admin") {
             adminPanel.classList.remove('hidden');
-            roleBadge.className = "text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold shadow-sm";
+            roleBadge.className = "text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 text-purple-600 font-semibold";
             fetchAllUsersDirectory();
           } else {
             adminPanel.classList.add('hidden');
-            roleBadge.className = "text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold shadow-sm";
+            roleBadge.className = "text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 font-semibold";
           }
         } catch (err) {
           adminPanel.classList.add('hidden');
@@ -463,21 +419,20 @@
         const tbody = document.getElementById('admin-users-table-body');
         const countBadge = document.getElementById('user-count-badge');
         if (!usersData) {
-          tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">No users found in database.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-400">No users found.</td></tr>`;
           return;
         }
         const userKeys = Object.keys(usersData);
-        countBadge.innerText = `${userKeys.length} Total Users`;
+        countBadge.innerText = `${userKeys.length} Users`;
         tbody.innerHTML = userKeys.map(uid => {
           const u = usersData[uid];
           const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A';
-          const roleColor = u.role === 'admin' ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/20';
           return `
-            <tr class="hover:bg-slate-700/30 transition-colors duration-200">
-              <td class="p-4 font-mono text-indigo-300 text-xs">${uid.substring(0, 8)}...</td>
-              <td class="p-4 font-bold text-slate-100">${u.email}</td>
-              <td class="p-4"><span class="px-2.5 py-1 rounded-md border ${roleColor} text-[10px] uppercase font-bold tracking-wide">${u.role || 'student'}</span></td>
-              <td class="p-4 text-slate-400 text-xs">${dateStr}</td>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="p-4 font-mono text-gray-500 text-xs">${uid.substring(0, 8)}...</td>
+              <td class="p-4 font-medium text-gray-900">${u.email}</td>
+              <td class="p-4"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 text-[10px] uppercase font-semibold">${u.role || 'student'}</span></td>
+              <td class="p-4 text-gray-500 text-xs">${dateStr}</td>
             </tr>
           `;
         }).join('');
@@ -533,42 +488,25 @@
         fixedContainer.classList.add('hidden');
       }
 
-      document.getElementById('form-title').innerHTML = `
-        <i data-lucide="edit-3" class="w-5 h-5 text-amber-400"></i>
-        Edit Commitment
-      `;
-      document.getElementById('submit-btn-text').innerText = 'Update Task';
-      
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.className = "flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_25px_rgba(245,158,11,0.5)] transition-all duration-300 transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm";
-      
+      document.getElementById('form-title').innerText = `Edit Commitment`;
+      document.getElementById('submit-btn-text').innerText = 'Save Changes';
+      document.getElementById('submit-btn').className = "flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] text-sm";
       document.getElementById('cancel-edit-btn').classList.remove('hidden');
       document.getElementById('edit-mode-badge').classList.remove('hidden');
       
       document.getElementById('task-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      lucide.createIcons();
     };
 
     window.cancelEdit = function() {
       editingTaskId = null;
-      
-      const form = document.getElementById('task-form');
-      form.reset();
+      document.getElementById('task-form').reset();
       document.getElementById('fixed-time-container').classList.add('hidden');
       document.getElementById('is-fixed-time').checked = false;
-      
-      document.getElementById('form-title').innerHTML = `
-        <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i>
-        Add Commitment
-      `;
-      document.getElementById('submit-btn-text').innerText = 'Save Task to Profile';
-      
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.className = "flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3.5 rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] transition-all duration-300 transform active:scale-[0.98] flex items-center justify-center gap-2 text-sm";
-      
+      document.getElementById('form-title').innerText = `New Commitment`;
+      document.getElementById('submit-btn-text').innerText = 'Add to Queue';
+      document.getElementById('submit-btn').className = "flex-1 bg-[#1D1D1F] hover:bg-black text-white font-medium py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] text-sm";
       document.getElementById('cancel-edit-btn').classList.add('hidden');
       document.getElementById('edit-mode-badge').classList.add('hidden');
-      lucide.createIcons();
     };
 
     function listenToUserTasks(uid) {
@@ -593,7 +531,7 @@
 
     window.clearAllQueue = function() {
       if (!currentUser) return;
-      if (confirm("Are you sure you want to clear all tasks from your cloud queue?")) {
+      if (confirm("Clear all items from your queue?")) {
         remove(ref(db, `tasks/${currentUser.uid}`));
         cancelEdit();
       }
@@ -604,53 +542,39 @@
       const countEl = document.getElementById('queue-count');
       const clearBtn = document.getElementById('clear-all-btn');
       
-      countEl.innerText = `${currentTaskQueue.length} tasks`;
+      countEl.innerText = `${currentTaskQueue.length} items`;
       if (currentTaskQueue.length === 0) {
         clearBtn.classList.add('hidden');
         queueEl.innerHTML = `
-          <div class="text-center py-10 text-slate-500 border-2 border-dashed border-slate-700/50 rounded-2xl flex flex-col items-center gap-2">
-            <i data-lucide="cloud-off" class="w-6 h-6 opacity-50"></i>
-            <span class="text-xs">No tasks in your cloud queue.<br>Add tasks above.</span>
+          <div class="text-center py-10 text-gray-400">
+            <p class="text-sm">Your queue is empty</p>
           </div>`;
-        lucide.createIcons();
         return;
       }
       
       clearBtn.classList.remove('hidden');
       queueEl.innerHTML = currentTaskQueue.map(t => {
         const isEditing = t.id === editingTaskId;
-        const bgClass = isEditing ? 'bg-amber-900/20 border-amber-500/50 ring-1 ring-amber-500/30' : 'bg-slate-900/60 border-slate-700/50 hover:border-slate-600';
+        const bgClass = isEditing ? 'bg-orange-50 border-orange-200' : 'bg-gray-50 border-gray-100 hover:border-gray-200';
         
-        // Pick icon based on category
-        let icon = 'list';
-        if(t.category === 'academic') icon = 'book-open';
-        else if(t.category === 'work') icon = 'briefcase';
-        else if(t.category === 'study') icon = 'users';
-        else if(t.category === 'personal') icon = 'coffee';
-
         return `
-        <div class="${bgClass} p-4 rounded-2xl flex items-center justify-between shadow-sm transition-all duration-300 group">
-          <div class="flex items-center gap-3 min-w-0 flex-1">
-            <div class="p-2 bg-slate-800 rounded-lg border border-white/5 flex-shrink-0 group-hover:bg-slate-700 transition-colors">
-              <i data-lucide="${icon}" class="w-4 h-4 text-indigo-400"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-slate-100 flex items-center gap-2 truncate">
-                ${t.title}
-                ${t.isFixed ? `<span class="text-[10px] text-indigo-300 font-mono bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20 flex-shrink-0"><i data-lucide="clock" class="w-3 h-3 inline pb-0.5"></i> ${t.startTime}</span>` : ''}
-              </p>
-              <div class="flex items-center gap-2 text-slate-400 text-[11px] mt-1 truncate">
-                <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${t.location}</span>
-                <span class="w-1 h-1 rounded-full bg-slate-600"></span>
-                <span class="flex items-center gap-1"><i data-lucide="hourglass" class="w-3 h-3"></i> ${t.duration} mins</span>
-              </div>
+        <div class="${bgClass} p-4 rounded-2xl border flex items-center justify-between transition-colors group">
+          <div class="flex-1 min-w-0 pr-4">
+            <p class="font-medium text-gray-900 truncate flex items-center gap-2">
+              ${t.title}
+              ${t.isFixed ? `<span class="text-[10px] text-gray-500 font-mono bg-white px-1.5 py-0.5 rounded shadow-sm border border-gray-200 flex-shrink-0">${t.startTime}</span>` : ''}
+            </p>
+            <div class="flex items-center gap-2 text-gray-500 text-[11px] mt-1.5 truncate">
+              <span>${t.location}</span>
+              <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+              <span>${t.duration}m</span>
             </div>
           </div>
-          <div class="flex items-center gap-1 flex-shrink-0 ml-3 opacity-80 group-hover:opacity-100 transition-opacity">
-            <button type="button" onclick="window.editTask('${t.id}')" class="text-slate-400 hover:text-amber-400 p-2 transition-all duration-200 rounded-xl hover:bg-slate-800 border border-transparent hover:border-white/5" title="Edit task">
-              <i data-lucide="edit-3" class="w-4 h-4"></i>
+          <div class="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button type="button" onclick="window.editTask('${t.id}')" class="text-gray-400 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-200 transition-colors" title="Edit">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
             </button>
-            <button type="button" onclick="window.deleteTask('${t.id}')" class="text-slate-400 hover:text-rose-400 p-2 transition-all duration-200 rounded-xl hover:bg-slate-800 border border-transparent hover:border-white/5" title="Delete task">
+            <button type="button" onclick="window.deleteTask('${t.id}')" class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="Delete">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
@@ -659,14 +583,12 @@
       lucide.createIcons();
     }
 
-    // --- Modal and Logic Functions completed here ---
     window.openNavModal = function(location) {
       const encoded = encodeURIComponent(location);
-      document.getElementById('nav-modal-location').innerHTML = `<i data-lucide="map-pin" class="w-4 h-4 text-indigo-400"></i> ${location}`;
+      document.getElementById('nav-modal-location').innerHTML = `<i data-lucide="map-pin" class="w-4 h-4 text-gray-400 mt-0.5"></i> <span>${location}</span>`;
       document.getElementById('nav-waze').href = `https://waze.com/ul?q=${encoded}&navigate=yes`;
       document.getElementById('nav-google').href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
       document.getElementById('nav-apple').href = `http://maps.apple.com/?q=${encoded}`;
-      document.getElementById('nav-geo').href = `geo:0,0?q=${encoded}`;
       
       document.getElementById('nav-modal').classList.remove('hidden');
       lucide.createIcons();
@@ -679,26 +601,27 @@
     window.runAutoPackEngine = function() {
       const container = document.getElementById('timeline-container');
       if (currentTaskQueue.length === 0) {
-        alert("Please add tasks to your cloud queue before running the Auto-Pack engine.");
+        alert("Please add tasks to your queue first.");
         return;
       }
       container.innerHTML = `
-        <div class="pl-12 py-10 text-center text-indigo-300 text-sm flex flex-col items-center justify-center h-full">
-          <i data-lucide="loader-2" class="w-8 h-8 animate-spin mb-4 text-indigo-500"></i>
-          Running heuristic packing algorithms...
+        <div class="flex flex-col items-center justify-center h-full">
+          <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-[#0071E3] mb-3"></i>
+          <p class="text-sm text-gray-500 font-medium">Processing timeline...</p>
         </div>`;
       lucide.createIcons();
       
-      // Placeholder logic to simulate packing
       setTimeout(() => {
         container.innerHTML = `
-          <div class="pl-12 py-20 text-center text-slate-400 text-sm">
-             <i data-lucide="check-circle" class="w-10 h-10 mx-auto mb-3 text-emerald-400"></i>
-             <p class="text-emerald-300 font-bold text-base mb-1">Itinerary Generated Successfully</p>
-             <p class="text-xs">Timeline logic rendering is ready to be implemented here.</p>
+          <div class="flex flex-col items-center justify-center h-full">
+             <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mb-3">
+               <i data-lucide="check" class="w-6 h-6 text-green-600"></i>
+             </div>
+             <p class="text-gray-900 font-medium text-sm">Schedule Generated</p>
+             <p class="text-xs mt-1 text-gray-500">Timeline view will render here.</p>
           </div>`;
         lucide.createIcons();
-      }, 1500);
+      }, 1200);
     };
 
   </script>
