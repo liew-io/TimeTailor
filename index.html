@@ -175,6 +175,24 @@
                 </div>
               </div>
 
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Priority</label>
+                  <select id="task-priority" class="w-full px-5 py-3.5 bg-black/[0.02] border border-black/[0.06] rounded-2xl text-sm text-gray-900 font-medium">
+                    <option value="1">Low</option><option value="2" selected>Medium</option><option value="3">High</option><option value="4">Critical</option>
+                  </select>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Deadline</label>
+                  <input type="time" id="task-deadline" value="20:00" required class="w-full px-4 py-3.5 bg-black/[0.02] border border-black/[0.06] rounded-2xl text-sm text-gray-900 font-medium">
+                </div>
+              </div>
+
+              <div id="flex-window" class="grid grid-cols-2 gap-4">
+                <div class="space-y-1.5"><label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Available From</label><input type="time" id="task-window-start" value="08:00" class="w-full px-4 py-3 bg-black/[0.02] border border-black/[0.06] rounded-2xl text-sm"></div>
+                <div class="space-y-1.5"><label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Latest Start</label><input type="time" id="task-window-end" value="20:00" class="w-full px-4 py-3 bg-black/[0.02] border border-black/[0.06] rounded-2xl text-sm"></div>
+              </div>
+
               <div class="p-4 bg-black/[0.02] rounded-2xl border border-black/[0.04]">
                 <div class="flex items-center justify-between">
                   <label for="is-fixed-time" class="text-xs font-semibold text-gray-700 cursor-pointer select-none flex items-center gap-2">
@@ -183,7 +201,7 @@
                   <input type="checkbox" id="is-fixed-time" onchange="window.toggleFixedTimeInput(this)" class="w-4 h-4 text-[#0071E3] bg-white border-gray-300 rounded-md focus:ring-0 cursor-pointer transition-all">
                 </div>
                 <div id="fixed-time-container" class="hidden pt-3.5 mt-3.5 border-t border-black/[0.05]">
-                  <input type="time" id="task-start-time" value="14:00" 
+                  <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Fixed start time</label><input type="time" id="task-start-time" value="14:00"
                          class="w-full px-4 py-2.5 bg-white border border-black/[0.08] rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-[#0071E3] outline-none transition-all duration-200">
                 </div>
               </div>
@@ -237,7 +255,7 @@
                 <h2 class="text-xl font-bold text-gray-900 tracking-tight">
                   Timeline View
                 </h2>
-                <p class="text-xs text-gray-400 mt-1 font-medium">Smart constraint-packed schedule</p>
+                <p class="text-xs text-gray-400 mt-1 font-medium">Greedy-DP spatio-temporal task packing</p>
               </div>
               <div class="flex items-center gap-2.5 bg-black/[0.03] p-1.5 rounded-2xl border border-black/[0.02]">
                 <div class="flex items-center gap-2 px-3 py-1.5">
@@ -257,6 +275,11 @@
                 </div>
                 <p class="text-gray-900 font-bold text-base tracking-tight">No Schedule Generated</p>
                 <p class="text-xs mt-1.5 text-gray-400 max-w-xs leading-relaxed font-medium">Select a date and click Auto Pack to orchestrate your queue into an optimized timeline.</p>
+              </div>
+              <div id="schedule-summary" class="hidden mt-5"></div>
+              <div class="flex flex-wrap gap-2 mt-4">
+                <button id="delay-reschedule-btn" onclick="window.rescheduleAfterDelay()" class="hidden text-xs font-semibold px-4 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-100">Simulate 30-minute delay & reschedule</button>
+                <button id="compare-baselines-btn" onclick="window.compareBaselines()" class="hidden text-xs font-semibold px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100">Compare scheduling baselines</button>
               </div>
             </div>
 
@@ -340,9 +363,31 @@
     let currentUser = null;
     let currentTaskQueue = [];
     let editingTaskId = null;
+    let lastSchedule = [];
+    const DAY_START = 8 * 60;
+    const DAY_END = 22 * 60;
+    const DEFAULT_TRAVEL_MINUTES = 15;
+    const REST_EVERY_MINUTES = 180;
+    const REST_MINUTES = 15;
+    // Set this in a local deployment after enabling Maps JavaScript API and Routes API.
+    // Restrict the browser key by HTTP referrer and API before use.
+    const GOOGLE_MAPS_API_KEY = '';
+    let routeMatrixDurations = new Map();
+
+    const timeToMinutes = value => {
+      if (!value) return null;
+      const [hours, minutes] = value.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    const minutesToTime = value => `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(value % 60).padStart(2, '0')}`;
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const localDateString = () => {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    };
 
     document.addEventListener("DOMContentLoaded", () => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateString();
       const dateInput = document.getElementById('schedule-date');
       if (dateInput) dateInput.value = today;
       lucide.createIcons();
@@ -350,6 +395,7 @@
 
     window.toggleFixedTimeInput = function(checkbox) {
       document.getElementById('fixed-time-container').classList.toggle('hidden', !checkbox.checked);
+      document.getElementById('flex-window').classList.toggle('hidden', checkbox.checked);
     };
 
     window.handleRegister = async function() {
@@ -451,7 +497,7 @@
           return `
             <tr class="hover:bg-black/[0.01] transition-colors">
               <td class="p-4 pl-6 font-mono text-gray-400 text-xs">${uid.substring(0, 8)}...</td>
-              <td class="p-4 font-semibold text-gray-900">${u.email}</td>
+              <td class="p-4 font-semibold text-gray-900">${escapeHtml(u.email)}</td>
               <td class="p-4"><span class="px-2.5 py-1 rounded-md bg-black/[0.04] text-gray-600 text-[10px] uppercase font-bold tracking-wider">${u.role || 'student'}</span></td>
               <td class="p-4 pr-6 text-gray-400 text-xs font-medium">${dateStr}</td>
             </tr>
@@ -470,11 +516,18 @@
       const location = document.getElementById('task-location').value;
       const isFixed = document.getElementById('is-fixed-time').checked;
       const startTime = isFixed ? document.getElementById('task-start-time').value : null;
+      const deadline = document.getElementById('task-deadline').value;
+      const priority = Number(document.getElementById('task-priority').value);
 
       const taskData = {
-        title, category, duration, location, isFixed, startTime,
+        title, category, duration, location, isFixed, startTime, deadline, priority,
+        date: (editingTaskId && currentTaskQueue.find(task => task.id === editingTaskId)?.date) || document.getElementById('schedule-date').value || localDateString(),
+        windowStart: isFixed ? null : document.getElementById('task-window-start').value,
+        windowEnd: isFixed ? null : document.getElementById('task-window-end').value,
         updatedAt: Date.now()
       };
+      if (isFixed && !startTime) return alert('Choose a fixed start time.');
+      if (!isFixed && timeToMinutes(taskData.windowStart) >= timeToMinutes(taskData.windowEnd)) return alert('Latest start must be after Available From.');
 
       if (editingTaskId) {
         taskData.createdAt = currentTaskQueue.find(t => t.id === editingTaskId)?.createdAt || Date.now();
@@ -499,6 +552,10 @@
       document.getElementById('task-category').value = task.category;
       document.getElementById('task-duration').value = task.duration;
       document.getElementById('task-location').value = task.location;
+      document.getElementById('task-priority').value = task.priority || 2;
+      document.getElementById('task-deadline').value = task.deadline || '20:00';
+      document.getElementById('task-window-start').value = task.windowStart || '08:00';
+      document.getElementById('task-window-end').value = task.windowEnd || '20:00';
       document.getElementById('is-fixed-time').checked = task.isFixed;
       
       const fixedContainer = document.getElementById('fixed-time-container');
@@ -508,6 +565,7 @@
       } else {
         fixedContainer.classList.add('hidden');
       }
+      document.getElementById('flex-window').classList.toggle('hidden', !!task.isFixed);
 
       document.getElementById('form-title').innerText = `Edit Commitment`;
       document.getElementById('submit-btn').className = "flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-2xl transition-all duration-200 active:scale-[0.98] text-sm shadow-md shadow-amber-500/20 flex justify-center items-center gap-2";
@@ -524,6 +582,7 @@
       editingTaskId = null;
       document.getElementById('task-form').reset();
       document.getElementById('fixed-time-container').classList.add('hidden');
+      document.getElementById('flex-window').classList.remove('hidden');
       document.getElementById('is-fixed-time').checked = false;
       
       document.getElementById('form-title').innerText = `New Commitment`;
@@ -589,13 +648,14 @@
         <div class="${bgClass} p-4 rounded-2xl border flex items-center justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-black/[0.02] group">
           <div class="flex-1 min-w-0 pr-3">
             <p class="font-bold text-gray-900 truncate flex items-center gap-2 text-sm">
-              ${t.title}
-              ${t.isFixed ? `<span class="text-[9px] text-gray-600 font-mono bg-black/[0.04] px-2 py-0.5 rounded-md border border-black/[0.05] flex-shrink-0 flex items-center gap-1"><i data-lucide="lock" class="w-2.5 h-2.5"></i>${t.startTime}</span>` : ''}
+              ${escapeHtml(t.title)}
+            ${t.isFixed ? `<span class="text-[9px] text-gray-600 font-mono bg-black/[0.04] px-2 py-0.5 rounded-md border border-black/[0.05] flex-shrink-0 flex items-center gap-1"><i data-lucide="lock" class="w-2.5 h-2.5"></i>${escapeHtml(t.startTime)}</span>` : ''}
             </p>
             <div class="flex items-center gap-2.5 text-gray-400 text-[11px] mt-1 font-medium truncate">
-              <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${t.location}</span>
+              <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${escapeHtml(t.location)}</span>
               <span class="w-1 h-1 rounded-full bg-gray-300"></span>
               <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${t.duration}m</span>
+              <span class="w-1 h-1 rounded-full bg-gray-300"></span><span>Priority ${t.priority || 2} · Due ${escapeHtml(t.deadline || '20:00')} · ${escapeHtml(t.date || 'Any date')}</span>
             </div>
           </div>
           <div class="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -615,7 +675,7 @@
       const encoded = encodeURIComponent(location);
       document.getElementById('nav-modal-location').innerHTML = `
         <i data-lucide="map-pin" class="w-4 h-4 text-[#0071E3] flex-shrink-0 mt-0.5"></i>
-        <span class="truncate">${location}</span>`;
+        <span class="truncate">${escapeHtml(location)}</span>`;
       
       document.getElementById('nav-waze').href = `https://waze.com/ul?q=${encoded}&navigate=yes`;
       document.getElementById('nav-google').href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
@@ -629,32 +689,228 @@
       document.getElementById('nav-modal').classList.add('hidden');
     };
 
-    window.runAutoPackEngine = function() {
-      const container = document.getElementById('timeline-container');
-      if (currentTaskQueue.length === 0) {
-        alert("Please add tasks to your queue first.");
-        return;
+    // A transparent route adapter: replace the estimate with Google Routes/Distance Matrix
+    // once a restricted browser key and billing/quota configuration are supplied.
+    function estimateTravel(from, to) {
+      if (!from || !to || from.trim().toLowerCase() === to.trim().toLowerCase()) return 0;
+      const routeKey = `${from.trim().toLowerCase()}|${to.trim().toLowerCase()}`;
+      if (routeMatrixDurations.has(routeKey)) return routeMatrixDurations.get(routeKey);
+      return DEFAULT_TRAVEL_MINUTES;
+    }
+
+    async function loadRouteMatrix(tasks) {
+      routeMatrixDurations = new Map();
+      if (!GOOGLE_MAPS_API_KEY) return false;
+      if (!window.google?.maps?.importLibrary) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&v=weekly`;
+          script.async = true;
+          script.onload = resolve;
+          script.onerror = () => reject(new Error('Google Maps could not be loaded.'));
+          document.head.appendChild(script);
+        });
       }
-      container.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full">
-          <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-3">
-             <i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-[#0071E3]"></i>
-          </div>
-          <p class="text-sm text-gray-900 font-bold">Solving Schedule Constraints...</p>
-        </div>`;
+      const [{RouteMatrix}, {Place}] = await Promise.all([
+        google.maps.importLibrary('routes'), google.maps.importLibrary('places')
+      ]);
+      const locations = [...new Set(tasks.map(task => task.location?.trim()).filter(Boolean))];
+      if (locations.length < 2) return true;
+      if (locations.length > 50) throw new Error('Google Routes supports up to 50 address/Place waypoints per request.');
+      const places = await Promise.all(locations.map(async address => {
+        const {places: matches} = await Place.searchByText({textQuery:address, region:'MY', maxResultCount:1, fields:['id','location']});
+        if (!matches?.[0]) throw new Error(`Google Places could not resolve “${address}”.`);
+        return matches[0];
+      }));
+      // Batch pairwise transit ETAs. The API has a 100-element limit for transit matrices.
+      for (let i = 0; i < locations.length; i += 10) {
+        for (let j = 0; j < locations.length; j += 10) {
+          const origins = places.slice(i, i + 10);
+          const destinations = places.slice(j, j + 10);
+          const {matrix} = await RouteMatrix.computeRouteMatrix({
+            origins, destinations, travelMode:'TRANSIT',
+            fields:['durationMillis','condition','travelAdvisory']
+          });
+          matrix.rows.forEach((row, rowIndex) => row.items.forEach((route, colIndex) => {
+            if (route.condition !== 'ROUTE_EXISTS' || !route.durationMillis) return;
+            const from = locations[i + rowIndex], to = locations[j + colIndex];
+            routeMatrixDurations.set(`${from.trim().toLowerCase()}|${to.trim().toLowerCase()}`, Math.ceil(route.durationMillis / 60000));
+          }));
+        }
+      }
+      return true;
+    }
+
+    function buildSchedule(tasks, strategy = 'hybrid', delay = null) {
+      const errors = [];
+      const date = document.getElementById('schedule-date').value || localDateString();
+      const dayTasks = tasks.filter(task => !task.date || task.date === date).map(task => ({...task}));
+      if (!dayTasks.length) return {items: [], errors: [`No commitments are assigned to ${date}. Edit or add tasks for this date.`]};
+
+      let anchors = dayTasks.filter(task => task.isFixed).map(task => {
+        const start = timeToMinutes(task.startTime);
+        const actualStart = delay?.taskId === task.id ? start + delay.minutes : start;
+        return {...task, start: actualStart, end: actualStart + Number(task.duration), type: 'task', delayed: delay?.taskId === task.id};
+      }).sort((a, b) => a.start - b.start);
+
+      for (let i = 0; i < anchors.length; i++) {
+        if (anchors[i].start < DAY_START || anchors[i].end > DAY_END) errors.push(`${anchors[i].title}: fixed commitment falls outside 08:00–22:00.`);
+        if (i && anchors[i].start < anchors[i - 1].end) errors.push(`${anchors[i - 1].title} overlaps ${anchors[i].title}.`);
+        if (i && anchors[i].start >= anchors[i - 1].end) {
+          const requiredTravel = estimateTravel(anchors[i - 1].location, anchors[i].location);
+          if (anchors[i].start - anchors[i - 1].end < requiredTravel) errors.push(`Insufficient travel time between ${anchors[i - 1].title} and ${anchors[i].title} (${requiredTravel} min required).`);
+        }
+        if (anchors[i].deadline && anchors[i].end > timeToMinutes(anchors[i].deadline)) errors.push(`${anchors[i].title}: fixed commitment ends after its deadline.`);
+      }
+      if (errors.length) return {items: anchors, errors};
+
+      const flexible = dayTasks.filter(task => !task.isFixed).map(task => ({
+        ...task, earliest: timeToMinutes(task.windowStart) ?? DAY_START,
+        latest: Math.min(timeToMinutes(task.windowEnd) ?? DAY_END, timeToMinutes(task.deadline) ?? DAY_END) - Number(task.duration),
+        due: timeToMinutes(task.deadline) ?? DAY_END, duration: Number(task.duration)
+      }));
+      if (strategy === 'priority') flexible.sort((a, b) => (b.priority || 2) - (a.priority || 2) || a.due - b.due);
+      else if (strategy === 'edf') flexible.sort((a, b) => a.due - b.due || (b.priority || 2) - (a.priority || 2));
+      else flexible.sort((a, b) => a.due - b.due || (b.priority || 2) - (a.priority || 2) || b.duration - a.duration);
+
+      // Greedy-DP hybrid: anchors split the day into feasible gaps; a 0/1 DP
+      // selects the highest-value task subset per gap, then greedy ordering packs it.
+      const boundaries = [{start: DAY_START, end: anchors[0]?.start ?? DAY_END, left: null, right: anchors[0] ?? null}];
+      for (let i = 0; i < anchors.length - 1; i++) boundaries.push({start: anchors[i].end, end: anchors[i + 1].start, left: anchors[i], right: anchors[i + 1]});
+      boundaries.push({start: anchors.at(-1)?.end ?? DAY_START, end: DAY_END, left: anchors.at(-1) ?? null, right: null});
+      const scheduled = [];
+      const remaining = new Map(flexible.map(task => [task.id, task]));
+
+      for (const gap of boundaries) {
+        const previousPlace = scheduled.filter(item => item.end <= gap.start).at(-1) || gap.left;
+        const nextPlace = gap.right;
+        const capacity = Math.max(0, gap.end - gap.start);
+        // DP over 15-minute units; reserve conservative travel to/from this gap.
+        const candidates = [...remaining.values()].filter(task => task.earliest < gap.end && task.latest >= gap.start);
+        const unit = 15, slots = Math.floor(capacity / unit);
+        const dp = Array.from({length: candidates.length + 1}, () => Array(slots + 1).fill(0));
+        for (let i = 1; i <= candidates.length; i++) {
+          const task = candidates[i - 1];
+          const travel = estimateTravel(previousPlace?.location, task.location);
+          const cost = Math.ceil((task.duration + travel) / unit);
+          const value = Math.max(1, (task.priority || 2) * 100 + Math.max(0, 22 * 60 - task.due) / 10);
+          for (let s = 0; s <= slots; s++) dp[i][s] = Math.max(dp[i - 1][s], s >= cost ? dp[i - 1][s - cost] + value : 0);
+        }
+        let s = slots, picked = [];
+        for (let i = candidates.length; i > 0; i--) {
+          if (dp[i][s] !== dp[i - 1][s]) {
+            const task = candidates[i - 1];
+            const travel = estimateTravel(previousPlace?.location, task.location);
+            s -= Math.ceil((task.duration + travel) / unit);
+            picked.push(task);
+          }
+        }
+        picked.sort((a, b) => strategy === 'edf' ? a.due - b.due : (b.priority || 2) - (a.priority || 2) || a.due - b.due);
+        let cursor = gap.start, previous = previousPlace, workSinceBreak = 0;
+        for (const task of picked) {
+          const travel = estimateTravel(previous?.location, task.location);
+          let start = Math.max(cursor + travel, task.earliest);
+          if (workSinceBreak >= REST_EVERY_MINUTES) {
+            if (start + REST_MINUTES + task.duration > Math.min(gap.end, task.latest + task.duration)) continue;
+            scheduled.push({type:'break', title:'Rest break', start, end:start + REST_MINUTES, location:previous?.location || '', duration:REST_MINUTES});
+            start += REST_MINUTES; workSinceBreak = 0;
+          }
+          const returnTravel = estimateTravel(task.location, nextPlace?.location);
+          if (start > task.latest || start + task.duration + returnTravel > gap.end) continue;
+          if (travel > 0) scheduled.push({type:'travel', title:`Travel to ${task.location}`, start: start - travel, end:start, location:task.location, duration:travel, estimated:true});
+          const item = {...task, type:'task', start, end:start + task.duration};
+          scheduled.push(item); remaining.delete(task.id); cursor = item.end; previous = item; workSinceBreak += task.duration;
+        }
+        if (nextPlace && previous !== nextPlace) {
+          const travel = estimateTravel(previous?.location, nextPlace.location);
+          if (travel > 0 && cursor + travel <= gap.end) scheduled.push({type:'travel', title:`Travel to ${nextPlace.title}`, start:gap.end - travel, end:gap.end, location:nextPlace.location, duration:travel, estimated:true});
+        }
+      }
+      const missed = [...remaining.values()];
+      missed.forEach(task => errors.push(`${task.title}: could not fit before its deadline and fixed commitments.`));
+      const items = [...anchors, ...scheduled].sort((a, b) => a.start - b.start || (a.type === 'travel' ? -1 : 1));
+      return {items, errors, missed};
+    }
+
+    function scheduleMetrics(result, allTasks) {
+      const taskItems = result.items.filter(item => item.type === 'task');
+      const deadlinesMissed = (result.missed?.length || 0) + result.items.filter(item => item.type === 'task' && item.deadline && item.end > timeToMinutes(item.deadline)).length;
+      const travel = result.items.filter(item => item.type === 'travel').reduce((sum, item) => sum + item.duration, 0);
+      const breaks = result.items.filter(item => item.type === 'break').reduce((sum, item) => sum + item.duration, 0);
+      const conflicts = result.errors.filter(error => error.includes('overlaps') || error.includes('Insufficient travel') || error.includes('outside')).length;
+      const ordered = [...result.items].sort((a,b) => a.start-b.start);
+      const idle = ordered.length ? Math.max(0, ordered[0].start - DAY_START) + ordered.slice(1).reduce((sum,item,index) => sum + Math.max(0, item.start - ordered[index].end), 0) + Math.max(0, DAY_END - ordered.at(-1).end) : DAY_END - DAY_START;
+      return {conflicts, missed:deadlinesMissed, travel, idle, packing:allTasks.length ? Math.round(taskItems.length / allTasks.length * 100) : 0, breaks};
+    }
+
+    function renderSchedule(result, metrics, label = 'Greedy-DP optimized schedule') {
+      const container = document.getElementById('timeline-container');
+      const summary = document.getElementById('schedule-summary');
+      const delayBtn = document.getElementById('delay-reschedule-btn');
+      const compareBtn = document.getElementById('compare-baselines-btn');
+      lastSchedule = result.items;
+      if (result.errors?.some(error => error.includes('overlaps') || error.includes('outside') || error.includes('Insufficient travel'))) {
+        container.innerHTML = `<div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-left"><p class="font-bold text-rose-800 mb-2">Fixed timetable conflict</p><ul class="text-sm text-rose-700 list-disc pl-5">${result.errors.map(error => `<li>${escapeHtml(error)}</li>`).join('')}</ul></div>`;
+        summary.classList.add('hidden'); delayBtn.classList.add('hidden'); compareBtn.classList.add('hidden'); return;
+      }
+      if (!result.items.length) { container.innerHTML = `<div class="p-4 rounded-xl bg-amber-50 text-amber-800 text-sm">${escapeHtml(result.errors?.[0] || 'No items could be scheduled.')}</div>`; summary.classList.add('hidden'); delayBtn.classList.add('hidden'); compareBtn.classList.add('hidden'); return; }
+      container.innerHTML = `<div class="space-y-3 text-left"><div class="text-xs uppercase tracking-wider font-bold text-gray-400 mb-3">${escapeHtml(label)}</div>${result.items.map(item => {
+        const color = item.type === 'break' ? 'emerald' : item.type === 'travel' ? 'sky' : item.isFixed ? 'violet' : 'blue';
+        const colorClasses = {emerald:'bg-emerald-400 text-emerald-700 bg-emerald-50',sky:'bg-sky-400 text-sky-700 bg-sky-50',violet:'bg-violet-400 text-violet-700 bg-violet-50',blue:'bg-blue-400 text-blue-700 bg-blue-50'}[color];
+        const badge = item.type === 'break' ? 'Rest' : item.type === 'travel' ? 'Travel estimate' : item.isFixed ? 'Fixed anchor' : `Priority ${item.priority || 2}`;
+        const safeLocationArg = encodeURIComponent(item.location || '');
+        return `<article class="flex gap-4 p-4 bg-white/80 rounded-2xl border border-black/[0.05]"><div class="w-14 shrink-0 text-xs font-bold text-gray-500 pt-1">${minutesToTime(item.start)}</div><div class="w-1 rounded-full ${colorClasses.split(' ')[0]}"></div><div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><p class="font-bold text-gray-900 text-sm">${escapeHtml(item.title)}</p><span class="text-[9px] uppercase tracking-wide px-2 py-1 rounded-full ${colorClasses.split(' ').slice(1).join(' ')}">${badge}</span>${item.delayed ? '<span class="text-[9px] px-2 py-1 rounded-full bg-amber-50 text-amber-700">Delayed</span>' : ''}</div><p class="text-xs text-gray-500 mt-1">${minutesToTime(item.start)}–${minutesToTime(item.end)} · ${item.duration} min${item.location ? ` · ${escapeHtml(item.location)}` : ''}${item.deadline ? ` · due ${escapeHtml(item.deadline)}` : ''}</p></div><button onclick="window.openNavModal(decodeURIComponent('${safeLocationArg}'))" class="text-xs text-blue-600 font-semibold self-center ${item.location && item.type === 'task' ? '' : 'hidden'}">Directions</button></article>`;
+      }).join('')}</div>`;
+      summary.className = 'mt-5 grid grid-cols-2 sm:grid-cols-5 gap-2 text-center';
+      summary.innerHTML = [['Conflicts', metrics.conflicts],['Missed deadlines', metrics.missed],['Travel', `${metrics.travel}m`],['Idle', `${metrics.idle}m`],['Packed', `${metrics.packing}%`]].map(([title,value]) => `<div class="rounded-xl bg-black/[0.03] p-3"><div class="text-[10px] uppercase text-gray-400 font-bold">${title}</div><div class="text-sm font-bold mt-1">${value}</div></div>`).join('') + `<p class="col-span-full text-left text-[11px] text-gray-400 mt-1">Google Routes transit times are used when configured and available; otherwise, different-location travel uses a 15-minute estimate. Rest breaks: ${metrics.breaks} minutes.</p>`;
+      delayBtn.classList.remove('hidden'); compareBtn.classList.remove('hidden');
       lucide.createIcons();
-      
-      setTimeout(() => {
-        container.innerHTML = `
-          <div class="flex flex-col items-center justify-center h-full">
-             <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4 border border-emerald-100 shadow-sm">
-               <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-500"></i>
-             </div>
-             <p class="text-gray-900 font-bold text-base tracking-tight">Schedule Packed Successfully</p>
-             <p class="text-xs mt-1 text-gray-400">Your optimized timeline is ready.</p>
-          </div>`;
-        lucide.createIcons();
-      }, 1200);
+    }
+
+    window.runAutoPackEngine = async function() {
+      if (!currentTaskQueue.length) return alert('Please add tasks to your queue first.');
+      const button = document.querySelector('button[onclick="window.runAutoPackEngine()"]');
+      button.disabled = true; button.classList.add('opacity-60');
+      document.getElementById('timeline-container').innerHTML = '<p class="text-sm text-gray-500">Calculating routes and packing your day…</p>';
+      try {
+      await loadRouteMatrix(currentTaskQueue.filter(task => !task.date || task.date === document.getElementById('schedule-date').value));
+      const result = buildSchedule(currentTaskQueue);
+      const metrics = scheduleMetrics(result, currentTaskQueue.filter(task => !task.date || task.date === document.getElementById('schedule-date').value));
+      renderSchedule(result, metrics);
+      if (result.errors?.length && !result.errors.some(error => error.includes('overlaps') || error.includes('outside'))) {
+        document.getElementById('timeline-container').insertAdjacentHTML('afterbegin', `<div class="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-100 text-sm text-amber-800"><strong>Unscheduled tasks</strong><ul class="list-disc pl-5 mt-1">${result.errors.map(error => `<li>${escapeHtml(error)}</li>`).join('')}</ul></div>`);
+      }
+      } catch (error) {
+        alert(`Route lookup failed: ${error.message}. Check your Google Maps key and enabled APIs; using estimated buffers.`);
+        routeMatrixDurations = new Map();
+        const result = buildSchedule(currentTaskQueue);
+        renderSchedule(result, scheduleMetrics(result, currentTaskQueue.filter(task => !task.date || task.date === document.getElementById('schedule-date').value)));
+      } finally { button.disabled = false; button.classList.remove('opacity-60'); }
+    };
+
+    window.rescheduleAfterDelay = async function() {
+      const next = lastSchedule.find(item => item.type === 'task' && item.isFixed);
+      if (!next) return alert('Add a fixed class or work shift to simulate an anchor delay.');
+      await loadRouteMatrix(currentTaskQueue);
+      const result = buildSchedule(currentTaskQueue, 'hybrid', {taskId:next.id, minutes:30});
+      renderSchedule(result, scheduleMetrics(result, currentTaskQueue.filter(task => !task.date || task.date === document.getElementById('schedule-date').value)), 'Rescheduled after a 30-minute anchor delay');
+    };
+
+    window.compareBaselines = async function() {
+      const date = document.getElementById('schedule-date').value;
+      const tasks = currentTaskQueue.filter(task => !task.date || task.date === date);
+      await loadRouteMatrix(tasks);
+      const results = [
+        ['Hybrid Greedy-DP', buildSchedule(currentTaskQueue, 'hybrid')],
+        ['Priority-First baseline', buildSchedule(currentTaskQueue, 'priority')],
+        ['Earliest Deadline First baseline', buildSchedule(currentTaskQueue, 'edf')]
+      ];
+      const rows = results.map(([name, result]) => {
+        const m = scheduleMetrics(result, tasks);
+        return `<tr class="border-t border-black/[0.05]"><td class="py-2 pr-3 font-semibold">${name}</td><td class="py-2 px-2">${m.conflicts}</td><td class="py-2 px-2">${m.missed}</td><td class="py-2 px-2">${m.travel}m</td><td class="py-2 px-2">${m.idle}m</td><td class="py-2 pl-2">${m.packing}%</td></tr>`;
+      }).join('');
+      document.getElementById('baseline-comparison')?.remove();
+      document.getElementById('schedule-summary').insertAdjacentHTML('beforeend', `<div id="baseline-comparison" class="col-span-full overflow-x-auto mt-3 p-4 rounded-2xl bg-indigo-50/70 text-left"><h3 class="text-sm font-bold text-indigo-900 mb-2">Evaluation benchmark</h3><table class="w-full text-[11px] text-indigo-900"><thead><tr><th class="text-left">Method</th><th>Conflicts</th><th>Missed</th><th>Travel</th><th>Idle</th><th>Packed</th></tr></thead><tbody>${rows}</tbody></table><p class="text-[10px] mt-2 text-indigo-700">Baseline results use the same fixed anchors, deadlines, and travel model for a comparable benchmark.</p></div>`);
     };
 
   </script>
